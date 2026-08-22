@@ -3,82 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tirgus un Laika Informācijas Panelis</title>
+    <title>Wall Street Kiosks - Sigulda</title>
     <style>
-        /* Pamata iestatījumi un "tumšais režīms" (Dark Mode), lai nespīdētu acīs uz lielā ekrāna */
+        /* Pamata iestatījumi un "tumšais režīms" */
         body, html {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
-            background-color: #0d1117; /* GitHub dark tēmas fons */
+            background-color: #0d1117; 
             color: #c9d1d9;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            overflow: hidden; /* Neļauj lapai "skrollēties" */
+            overflow: hidden; /* Pilnībā bloķējam ritināšanu (scroll), ideāli Kioska režīmam */
         }
 
-        /* Galvenais konteiners ar CSS Grid, lai ērti izkārtotu elementus */
+        /* 3x3 Grid izkārtojums */
         .dashboard-container {
             display: grid;
-            /* 3 kolonnas, divas vienādas, trešā - laikapstākļiem */
-            grid-template-columns: 2fr 2fr 1fr; 
-            /* 2 rindas: augšējā galvenā (lielāka), apakšējā mazāka */
-            grid-template-rows: auto 1fr;
-            /* Atstarpe starp logrīkiem */
+            /* 3 kolonnas: divas platākas grafikiem, viena nedaudz šaurāka laikam/valūtām */
+            grid-template-columns: 1.2fr 1.2fr 1fr; 
+            /* 3 rindas: Augšējā liela, vidējā vidēja, apakšējā maza (skrienošajai rindai) */
+            grid-template-rows: 50fr 35fr 15fr;
             gap: 15px;
             padding: 15px;
-            height: calc(100vh - 30px); /* 100% augstums mīnus padding */
+            height: calc(100vh - 30px);
             box-sizing: border-box;
         }
 
-        /* Kopējais stils visiem paneļa "blokiem" */
+        /* Logrīku kastes stils */
         .widget-box {
             background-color: #161b22;
             border-radius: 10px;
             border: 1px solid #30363d;
-            overflow: hidden; /* Neļauj saturam "izkāpt" ārpus rāmja */
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
         
         .widget-box h2 {
             margin: 0;
             padding: 10px 15px;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             border-bottom: 1px solid #30363d;
             background-color: #21262d;
-            text-align: center;
+            display: flex;
+            justify-content: space-between; /* Atdala virsrakstu un pulksteni */
+            align-items: center;
         }
 
-        /* Kurš elements kuru grid pozīciju ieņem */
+        /* --- Pozicionēšana Grid Tīklā --- */
         
-        /* 1. rinda, 1. un 2. kolonna - Lielais grafiks */
         .main-chart { 
             grid-column: 1 / 3; 
             grid-row: 1 / 2;
-            height: 60vh; /* Aizņem 60% no ekrāna augstuma */
         }
         
-        /* 1. rinda, 3. kolonna - Laikapstākļi */
+        /* Laika ziņas stiepjas cauri 1. un 2. rindai */
         .weather-panel { 
             grid-column: 3 / 4; 
-            grid-row: 1 / 2;
+            grid-row: 1 / 3;
         }
 
-        /* 2. rinda, 1. kolonna - Zelta cena */
         .gold-chart {
             grid-column: 1 / 2;
             grid-row: 2 / 3;
         }
 
-        /* 2. rinda, 2. un 3. kolonna - Papildus info (Ziņas, valūtas, u.c.) */
-        .news-panel {
-            grid-column: 2 / 4;
+        .calendar-panel {
+            grid-column: 2 / 3;
             grid-row: 2 / 3;
         }
 
-        /* Konteiners pašam logrīkam iekš bloka, lai aizņem visu brīvo vietu */
+        .ticker-panel {
+            grid-column: 1 / 3;
+            grid-row: 3 / 4;
+        }
+
+        .forex-panel {
+            grid-column: 3 / 4;
+            grid-row: 3 / 4;
+        }
+
+        /* Konteiners TradingView elementiem */
         .tradingview-widget-container {
             flex-grow: 1;
             height: 100%;
@@ -90,9 +97,9 @@
 
 <div class="dashboard-container">
 
-    <!-- 1. Galvenais grafiks (S&P 500) -->
+    <!-- 1. Lielais grafiks (S&P 500) -->
     <div class="widget-box main-chart">
-        <h2>S&P 500 & Global Markets</h2>
+        <h2>S&P 500 Index (Global Markets)</h2>
         <div class="tradingview-widget-container">
             <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px); width:100%;"></div>
             <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
@@ -116,11 +123,14 @@
         </div>
     </div>
 
-    <!-- 2. Laikapstākļi (Sigulda - Windy) -->
+    <!-- 2. Laikapstākļi (Windy - Ļoti liels logs) un Pulkstenis -->
     <div class="widget-box weather-panel">
-        <h2>Laikapstākļi Siguldā</h2>
+        <h2>
+            <span>Laikapstākļi Siguldā</span>
+            <span id="real-time-clock" style="color: #58a6ff; font-weight: bold; font-family: monospace; font-size: 1.3rem;">--:--:--</span>
+        </h2>
         <div style="flex-grow: 1; width: 100%; height: 100%; overflow: hidden;">
-            <iframe width="100%" height="100%" src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=10&overlay=wind&product=ecmwf&level=surface&lat=57.153&lon=24.854&detailLat=57.153&detailLon=24.854&marker=true" frameborder="0" style="border:0; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;"></iframe>
+            <iframe width="100%" height="100%" src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=9&overlay=wind&product=ecmwf&level=surface&lat=57.153&lon=24.854&detailLat=57.153&detailLon=24.854&marker=true" frameborder="0" style="border:0;"></iframe>
         </div>
     </div>
 
@@ -145,20 +155,39 @@
         </div>
     </div>
 
-    <!-- 4. Valūtas un Kripto vai Tirgus kopsavilkums -->
-    <div class="widget-box news-panel">
-        <h2>Tirgus Kopsavilkums (Ticker Tape)</h2>
+    <!-- 4. Ekonomikas Kalendārs -->
+    <div class="widget-box calendar-panel">
+        <h2>Ekonomikas Notikumu Kalendārs</h2>
         <div class="tradingview-widget-container">
-            <div class="tradingview-widget-container__widget"></div>
+            <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px); width:100%;"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
+            {
+            "colorTheme": "dark",
+            "isTransparent": true,
+            "width": "100%",
+            "height": "100%",
+            "locale": "en",
+            "importanceFilter": "0,1",
+            "currencyFilter": "USD,EUR"
+            }
+            </script>
+        </div>
+    </div>
+
+    <!-- 5. Ticker Tape (Skrienošā rinda) -->
+    <div class="widget-box ticker-panel">
+        <h2>Tirgus Kopsavilkums</h2>
+        <div class="tradingview-widget-container" style="display:flex; align-items:center;">
+            <div class="tradingview-widget-container__widget" style="width: 100%;"></div>
             <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
             {
             "symbols": [
-                { "proName": "FOREXCOM:SPXUSD", "title": "S&P 500 Index" },
-                { "proName": "FOREXCOM:NSXUSD", "title": "US 100 Cash CFD" },
-                { "proName": "FX_IDC:EURUSD", "title": "EUR to USD" },
+                { "proName": "FOREXCOM:SPXUSD", "title": "S&P 500" },
+                { "proName": "FOREXCOM:NSXUSD", "title": "Nasdaq 100" },
+                { "proName": "FX_IDC:EURUSD", "title": "EUR/USD" },
                 { "proName": "BITSTAMP:BTCUSD", "title": "Bitcoin" },
-                { "proName": "BITSTAMP:ETHUSD", "title": "Ethereum" },
                 { "description": "Apple", "proName": "NASDAQ:AAPL" },
+                { "description": "Nvidia", "proName": "NASDAQ:NVDA" },
                 { "description": "Tesla", "proName": "NASDAQ:TSLA" }
             ],
             "showSymbolLogo": true,
@@ -171,7 +200,42 @@
         </div>
     </div>
 
+    <!-- 6. Valūtu Kursi -->
+    <div class="widget-box forex-panel">
+        <h2>Valūtu Kursi (Pret EUR)</h2>
+        <div class="tradingview-widget-container">
+            <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px); width:100%;"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-forex-cross-rates.js" async>
+            {
+            "width": "100%",
+            "height": "100%",
+            "currencies": [
+                "EUR",
+                "USD",
+                "GBP",
+                "CHF",
+                "JPY"
+            ],
+            "isTransparent": true,
+            "colorTheme": "dark",
+            "locale": "en"
+            }
+            </script>
+        </div>
+    </div>
+
 </div>
+
+<!-- Neliels skripts pulksteņa darbībai -->
+<script>
+    function updateClock() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('lv-LV', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        document.getElementById('real-time-clock').textContent = timeString;
+    }
+    setInterval(updateClock, 1000);
+    updateClock(); // Palaist uzreiz
+</script>
 
 </body>
 </html>
