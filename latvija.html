@@ -16,7 +16,6 @@
             overflow: hidden; 
         }
 
-        /* 2x2 Grid izkārtojums - vienkāršāks un lielāks vietējai info */
         .dashboard-container {
             display: grid;
             grid-template-columns: 1fr 1fr; 
@@ -48,45 +47,10 @@
             align-items: center;
         }
 
-        /* Paneļu izvietojums */
         .news-panel { grid-column: 1 / 2; grid-row: 1 / 3; }
         .clock-panel { grid-column: 2 / 3; grid-row: 1 / 2; }
         .waze-panel { grid-column: 2 / 3; grid-row: 2 / 3; }
         
-        /* Ziņu saraksta stils */
-        .news-list {
-            padding: 20px;
-            overflow-y: auto; /* Ļauj ar pirkstu skrollēt ziņas uz leju */
-            font-size: 1.2rem;
-            line-height: 1.6;
-        }
-        .news-list ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .news-list li {
-            margin-bottom: 20px;
-            border-bottom: 1px solid #30363d;
-            padding-bottom: 15px;
-        }
-        .news-list a {
-            color: #c9d1d9;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        .news-list a:hover {
-            color: #58a6ff;
-        }
-        .news-time {
-            color: #ff7b72;
-            font-weight: bold;
-            margin-right: 15px;
-            display: inline-block;
-            min-width: 60px;
-        }
-
-        /* Lielais pulkstenis */
         .big-clock-container {
             display: flex;
             flex-direction: column;
@@ -94,6 +58,7 @@
             align-items: center;
             height: 100%;
             background: linear-gradient(180deg, #161b22 0%, #0d1117 100%);
+            padding-bottom: 20px;
         }
         .big-time {
             font-size: 5rem;
@@ -101,39 +66,41 @@
             color: #58a6ff;
             font-family: monospace;
             text-shadow: 0 0 10px rgba(88, 166, 255, 0.3);
+            margin-top: 20px;
         }
         .big-date {
             font-size: 1.5rem;
             color: #8b949e;
-            margin-top: 10px;
+            margin-top: 5px;
+            margin-bottom: 30px;
         }
-
     </style>
 </head>
 <body>
 
 <div class="dashboard-container">
 
-    <!-- 1. LSM.lv Ziņas (Skrollējamas) -->
+    <!-- 1. Delfi Ziņas (Iebūvēta mobilā lapa labākai lasāmībai ekrānā) -->
     <div class="widget-box news-panel">
         <h2>
-            <span>LATVIJAS ZIŅAS (LSM.lv)</span>
-            <span style="color: #8b949e; font-size: 0.9rem;">Atjaunojas automātiski</span>
+            <span>LATVIJAS ZIŅAS (Delfi)</span>
+            <span style="color: #8b949e; font-size: 0.9rem;">Skrollējiet ar pirkstu</span>
         </h2>
-        <div class="news-list" id="lsm-news">
-            <p style="color: #8b949e; text-align: center; margin-top: 50px;">Ielādē jaunākās ziņas no Latvijas...</p>
+        <div style="flex-grow: 1; width: 100%; height: 100%;">
+            <!-- Izmantojam iframe lai rādītu lapu pa tiešo. Dažreiz noder ielikt m.delfi.lv versiju labākam izskatam šaurākā logā -->
+            <iframe src="https://m.delfi.lv/" width="100%" height="100%" frameborder="0" style="border: 0; background-color: white;"></iframe>
         </div>
     </div>
 
-    <!-- 2. Lielais Pulkstenis un Laikapstākļi -->
+    <!-- 2. Lielais Pulkstenis un Windy Laika Prognoze -->
     <div class="widget-box clock-panel">
         <div class="big-clock-container">
             <div class="big-time" id="big-clock">--:--:--</div>
             <div class="big-date" id="big-date">Ielādē datumu...</div>
             
-            <!-- Meteoblue 4 dienu prognoze Siguldai apakšā zem pulksteņa -->
-            <div style="width: 100%; height: 200px; margin-top: 20px;">
-                <iframe src="https://www.meteoblue.com/lv/laikapstakli/widget/three/sigulda_latvija_455209?geoloc=fixed&nocurrent=0&noforecast=0&days=4&tempunit=CELSIUS&windunit=KILOMETER_PER_HOUR&layout=dark"  frameborder="0" scrolling="NO" allowtransparency="true" sandbox="allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox" style="width: 100%; height: 100%;"></iframe>
+            <!-- Windy prognoze Siguldai. Šis formāts parasti apiet bloķētājus. -->
+            <div style="width: 95%; height: 220px; border-radius: 8px; overflow: hidden; border: 1px solid #30363d;">
+                <iframe width="100%" height="100%" src="https://embed.windy.com/embed.html?type=forecast&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=11&overlay=wind&product=ecmwf&level=surface&lat=57.153&lon=24.854&detailLat=57.153&detailLon=24.854&detail=true" frameborder="0" style="border:0;"></iframe>
             </div>
         </div>
     </div>
@@ -142,7 +109,6 @@
     <div class="widget-box waze-panel">
         <h2>Satiksme Reāllaikā (Sigulda - Rīga)</h2>
         <div style="flex-grow: 1; width: 100%; height: 100%;">
-            <!-- Waze iframe centrēts ap Siguldu, zoom 10 lai redz arī Rīgu -->
             <iframe src="https://embed.waze.com/iframe?zoom=10&lat=57.153&lon=24.854&ct=livemap&theme=dark" width="100%" height="100%" allowfullscreen style="border: 0;"></iframe>
         </div>
     </div>
@@ -150,7 +116,7 @@
 </div>
 
 <script>
-    // 1. Pulksteņa un datuma atjaunošana
+    // Pulksteņa un datuma atjaunošana
     function updateBigClock() {
         const now = new Date();
         document.getElementById('big-clock').textContent = now.toLocaleTimeString('lv-LV', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -163,44 +129,6 @@
     }
     setInterval(updateBigClock, 1000);
     updateBigClock();
-
-    // 2. LSM.lv RSS ziņu ielāde (Izmantojot allorigins, lai apietu CORS/Pi-Hole blokus)
-    function fetchLSMNews() {
-        const rssUrl = 'https://www.lsm.lv/rss/';
-        const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(rssUrl);
-
-        fetch(proxyUrl)
-            .then(response => {
-                if (response.ok) return response.json();
-                throw new Error('Tīkla kļūda');
-            })
-            .then(data => {
-                // Pārveidojam iegūto tekstu (XML) par HTML elementiem
-                let parser = new DOMParser();
-                let xmlDoc = parser.parseFromString(data.contents, "text/xml");
-                let items = xmlDoc.querySelectorAll("item");
-                
-                let html = "<ul>";
-                // Rādām 15 svaigākās ziņas
-                for (let i = 0; i < Math.min(items.length, 15); i++) {
-                    let title = items[i].querySelector("title").textContent;
-                    let link = items[i].querySelector("link").textContent;
-                    let pubDate = new Date(items[i].querySelector("pubDate").textContent);
-                    let timeString = pubDate.toLocaleTimeString('lv-LV', {hour: '2-digit', minute:'2-digit'});
-                    
-                    html += `<li><span class="news-time">${timeString}</span> <a href="${link}" target="_blank">${title}</a></li>`;
-                }
-                html += "</ul>";
-                document.getElementById("lsm-news").innerHTML = html;
-            })
-            .catch(error => {
-                document.getElementById("lsm-news").innerHTML = "<p style='color:red; text-align:center;'>Neizdevās ielādēt ziņas. Pārbaudiet savienojumu.</p>";
-            });
-    }
-
-    // Ielādējam ziņas tūlīt un tad atjaunojam reizi 15 minūtēs (900000 milisekundes)
-    fetchLSMNews();
-    setInterval(fetchLSMNews, 900000);
 </script>
 
 </body>
