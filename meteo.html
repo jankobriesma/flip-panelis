@@ -2,7 +2,6 @@
 <html lang="lv">
 <head>
     <meta charset="UTF-8">
-    <!-- Automātiskā lapas pārlāde reizi stundā Kiosk režīma stabilitātei -->
     <meta http-equiv="refresh" content="3600">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>METEO!</title>
@@ -13,33 +12,23 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             overflow: hidden; 
         }
-
         .dashboard-container {
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            grid-template-rows: 1.5fr 1fr; /* Lielais radars aizņem 60% augstuma, apakšējie logrīki 40% */
-            gap: 15px; 
-            padding: 15px; 
-            height: calc(100vh - 110px); 
-            box-sizing: border-box;
+            display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1.5fr 1fr; 
+            gap: 15px; padding: 15px; height: calc(100vh - 110px); box-sizing: border-box;
         }
-
         .widget-box {
             background-color: #161b22; border-radius: 10px; border: 1px solid #30363d;
             overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
-        
         .widget-box h2 {
             margin: 0; padding: 15px; font-size: 1.4rem; font-weight: bold; border-bottom: 1px solid #30363d;
             background-color: #21262d; display: flex; justify-content: space-between; align-items: center;
-            color: #58a6ff; /* Zils akcents METEO virsrakstiem */
+            color: #58a6ff;
         }
-
         .radar-panel { grid-column: 1 / 3; grid-row: 1 / 2; }
         .wind-panel { grid-column: 1 / 2; grid-row: 2 / 3; }
         .forecast-panel { grid-column: 2 / 3; grid-row: 2 / 3; }
         
-        /* --- Apakšējās navigācijas joslas dizains 4 pogām --- */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; width: 100%;
             background-color: #161b22; border-top: 1px solid #30363d;
@@ -47,57 +36,200 @@
             height: 90px; padding: 0 15px; box-sizing: border-box; z-index: 9999; 
             box-shadow: 0 -5px 15px rgba(0,0,0,0.5);
         }
-        
         .bottom-nav a {
-            text-decoration: none; 
-            flex: 1; /* Pielāgojas ekrāna platumam, lai visas 4 pogas būtu vienādas */
-            text-align: center;
-            margin: 0 10px; /* Atstarpes starp pogām */
-            padding: 15px 0; 
-            background-color: #21262d;
+            text-decoration: none; flex: 1; text-align: center; margin: 0 10px;
+            padding: 15px 0; background-color: #21262d;
             color: #c9d1d9; border-radius: 12px; font-size: 1.4rem; font-weight: bold;
             border: 2px solid #30363d; transition: all 0.2s;
         }
-        
         .bottom-nav a:active { border-color: #58a6ff; background-color: #30363d; transform: scale(0.95); }
         .bottom-nav a.active { border-color: #58a6ff; color: #58a6ff; }
-        
-        /* Izceļam METEO pogu ar sarkanu akcentu, lai tā atšķiras */
         .bottom-nav a.meteo-btn.active { border-color: #ff7b72; color: #ff7b72; }
     </style>
 </head>
 <body>
 
 <div class="dashboard-container">
-
-    <!-- 1. Lielais reāllaika radars (Lietus, negaisi) -->
     <div class="widget-box radar-panel">
         <h2>METEO! - Reāllaika Radars un Nokrišņi</h2>
         <div style="flex-grow: 1; width: 100%; height: 100%;">
             <iframe src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=7&overlay=rain&product=ecmwf&level=surface&lat=57.153&lon=24.854&marker=true" width="100%" height="100%" frameborder="0" style="border: 0;"></iframe>
         </div>
     </div>
-
-    <!-- 2. Vēja plūsmas un brāzmas -->
     <div class="widget-box wind-panel">
         <h2>Vēja Plūsmas</h2>
         <div style="flex-grow: 1; width: 100%; height: 100%;">
             <iframe src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=7&overlay=wind&product=ecmwf&level=surface&lat=57.153&lon=24.854" width="100%" height="100%" frameborder="0" style="border: 0;"></iframe>
         </div>
     </div>
-
-    <!-- 3. Detalizētā Meteogramma stundu pa stundai -->
     <div class="widget-box forecast-panel">
         <h2>Meteogramma (Sigulda)</h2>
         <div style="flex-grow: 1; width: 100%; height: 100%; background-color: #ffffff;">
-            <!-- Meteogrammai fons balts, lai nedaudz labāk izceltos cipari -->
             <iframe width="100%" height="100%" src="https://embed.windy.com/embed.html?type=forecast&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=11&overlay=wind&product=ecmwf&level=surface&lat=57.153&lon=24.854&detailLat=57.153&detailLon=24.854&detail=true" frameborder="0" style="border:0;"></iframe>
         </div>
     </div>
-
 </div>
 
-<!-- Apakšējā izvēlne ar 4 pogām -->
+<div class="bottom-nav">
+    <a href="index.html">📈 Volstrīta</a>
+    <a href="latvija.html">🇱🇻 Latvija</a>
+    <a href="sigulda.html">⏱️ Sigulda</a>
+    <a href="meteo.html" class="active meteo-btn">🌪️ METEO!</a>
+</div>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="lv">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="3600">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>METEO!</title>
+    <style>
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: #0d1117; color: #c9d1d9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden; 
+        }
+        .dashboard-container {
+            display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1.5fr 1fr; 
+            gap: 15px; padding: 15px; height: calc(100vh - 110px); box-sizing: border-box;
+        }
+        .widget-box {
+            background-color: #161b22; border-radius: 10px; border: 1px solid #30363d;
+            overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .widget-box h2 {
+            margin: 0; padding: 15px; font-size: 1.4rem; font-weight: bold; border-bottom: 1px solid #30363d;
+            background-color: #21262d; display: flex; justify-content: space-between; align-items: center;
+            color: #58a6ff;
+        }
+        .radar-panel { grid-column: 1 / 3; grid-row: 1 / 2; }
+        .wind-panel { grid-column: 1 / 2; grid-row: 2 / 3; }
+        .forecast-panel { grid-column: 2 / 3; grid-row: 2 / 3; }
+        
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background-color: #161b22; border-top: 1px solid #30363d;
+            display: flex; justify-content: space-between; align-items: center;
+            height: 90px; padding: 0 15px; box-sizing: border-box; z-index: 9999; 
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.5);
+        }
+        .bottom-nav a {
+            text-decoration: none; flex: 1; text-align: center; margin: 0 10px;
+            padding: 15px 0; background-color: #21262d;
+            color: #c9d1d9; border-radius: 12px; font-size: 1.4rem; font-weight: bold;
+            border: 2px solid #30363d; transition: all 0.2s;
+        }
+        .bottom-nav a:active { border-color: #58a6ff; background-color: #30363d; transform: scale(0.95); }
+        .bottom-nav a.active { border-color: #58a6ff; color: #58a6ff; }
+        .bottom-nav a.meteo-btn.active { border-color: #ff7b72; color: #ff7b72; }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-container">
+    <div class="widget-box radar-panel">
+        <h2>METEO! - Reāllaika Radars un Nokrišņi</h2>
+        <div style="flex-grow: 1; width: 100%; height: 100%;">
+            <iframe src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=7&overlay=rain&product=ecmwf&level=surface&lat=57.153&lon=24.854&marker=true" width="100%" height="100%" frameborder="0" style="border: 0;"></iframe>
+        </div>
+    </div>
+    <div class="widget-box wind-panel">
+        <h2>Vēja Plūsmas</h2>
+        <div style="flex-grow: 1; width: 100%; height: 100%;">
+            <iframe src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=7&overlay=wind&product=ecmwf&level=surface&lat=57.153&lon=24.854" width="100%" height="100%" frameborder="0" style="border: 0;"></iframe>
+        </div>
+    </div>
+    <div class="widget-box forecast-panel">
+        <h2>Meteogramma (Sigulda)</h2>
+        <div style="flex-grow: 1; width: 100%; height: 100%; background-color: #ffffff;">
+            <iframe width="100%" height="100%" src="https://embed.windy.com/embed.html?type=forecast&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=11&overlay=wind&product=ecmwf&level=surface&lat=57.153&lon=24.854&detailLat=57.153&detailLon=24.854&detail=true" frameborder="0" style="border:0;"></iframe>
+        </div>
+    </div>
+</div>
+
+<div class="bottom-nav">
+    <a href="index.html">📈 Volstrīta</a>
+    <a href="latvija.html">🇱🇻 Latvija</a>
+    <a href="sigulda.html">⏱️ Sigulda</a>
+    <a href="meteo.html" class="active meteo-btn">🌪️ METEO!</a>
+</div>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="lv">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="3600">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>METEO!</title>
+    <style>
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: #0d1117; color: #c9d1d9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden; 
+        }
+        .dashboard-container {
+            display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1.5fr 1fr; 
+            gap: 15px; padding: 15px; height: calc(100vh - 110px); box-sizing: border-box;
+        }
+        .widget-box {
+            background-color: #161b22; border-radius: 10px; border: 1px solid #30363d;
+            overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .widget-box h2 {
+            margin: 0; padding: 15px; font-size: 1.4rem; font-weight: bold; border-bottom: 1px solid #30363d;
+            background-color: #21262d; display: flex; justify-content: space-between; align-items: center;
+            color: #58a6ff;
+        }
+        .radar-panel { grid-column: 1 / 3; grid-row: 1 / 2; }
+        .wind-panel { grid-column: 1 / 2; grid-row: 2 / 3; }
+        .forecast-panel { grid-column: 2 / 3; grid-row: 2 / 3; }
+        
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background-color: #161b22; border-top: 1px solid #30363d;
+            display: flex; justify-content: space-between; align-items: center;
+            height: 90px; padding: 0 15px; box-sizing: border-box; z-index: 9999; 
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.5);
+        }
+        .bottom-nav a {
+            text-decoration: none; flex: 1; text-align: center; margin: 0 10px;
+            padding: 15px 0; background-color: #21262d;
+            color: #c9d1d9; border-radius: 12px; font-size: 1.4rem; font-weight: bold;
+            border: 2px solid #30363d; transition: all 0.2s;
+        }
+        .bottom-nav a:active { border-color: #58a6ff; background-color: #30363d; transform: scale(0.95); }
+        .bottom-nav a.active { border-color: #58a6ff; color: #58a6ff; }
+        .bottom-nav a.meteo-btn.active { border-color: #ff7b72; color: #ff7b72; }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-container">
+    <div class="widget-box radar-panel">
+        <h2>METEO! - Reāllaika Radars un Nokrišņi</h2>
+        <div style="flex-grow: 1; width: 100%; height: 100%;">
+            <iframe src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=7&overlay=rain&product=ecmwf&level=surface&lat=57.153&lon=24.854&marker=true" width="100%" height="100%" frameborder="0" style="border: 0;"></iframe>
+        </div>
+    </div>
+    <div class="widget-box wind-panel">
+        <h2>Vēja Plūsmas</h2>
+        <div style="flex-grow: 1; width: 100%; height: 100%;">
+            <iframe src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=7&overlay=wind&product=ecmwf&level=surface&lat=57.153&lon=24.854" width="100%" height="100%" frameborder="0" style="border: 0;"></iframe>
+        </div>
+    </div>
+    <div class="widget-box forecast-panel">
+        <h2>Meteogramma (Sigulda)</h2>
+        <div style="flex-grow: 1; width: 100%; height: 100%; background-color: #ffffff;">
+            <iframe width="100%" height="100%" src="https://embed.windy.com/embed.html?type=forecast&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=11&overlay=wind&product=ecmwf&level=surface&lat=57.153&lon=24.854&detailLat=57.153&detailLon=24.854&detail=true" frameborder="0" style="border:0;"></iframe>
+        </div>
+    </div>
+</div>
+
 <div class="bottom-nav">
     <a href="index.html">📈 Volstrīta</a>
     <a href="latvija.html">🇱🇻 Latvija</a>
