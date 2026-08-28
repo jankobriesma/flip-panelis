@@ -64,16 +64,21 @@
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; width: 100%;
             background-color: #161b22; border-top: 1px solid #30363d;
-            display: flex; justify-content: space-around; align-items: center;
-            height: 90px; z-index: 9999; box-shadow: 0 -5px 15px rgba(0,0,0,0.5);
+            display: flex; justify-content: space-between; align-items: center;
+            height: 90px; padding: 0 15px; box-sizing: border-box; z-index: 9999; 
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.5);
         }
+        
         .bottom-nav a {
-            text-decoration: none; padding: 15px 40px; background-color: #21262d;
-            color: #c9d1d9; border-radius: 12px; font-size: 1.5rem; font-weight: bold;
+            text-decoration: none; flex: 1; text-align: center; margin: 0 10px;
+            padding: 15px 0; background-color: #21262d;
+            color: #c9d1d9; border-radius: 12px; font-size: 1.4rem; font-weight: bold;
             border: 2px solid #30363d; transition: all 0.2s;
         }
+        
         .bottom-nav a:active { border-color: #58a6ff; background-color: #30363d; transform: scale(0.95); }
         .bottom-nav a.active { border-color: #58a6ff; color: #58a6ff; }
+        .bottom-nav a.meteo-btn.active { border-color: #ff7b72; color: #ff7b72; }
     </style>
 </head>
 <body>
