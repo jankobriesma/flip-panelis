@@ -29,32 +29,39 @@
 </head>
 <body>
 <div class="dashboard-container">
+    
+    <!-- 1. Augšējā pulksteņa rinda -->
     <div class="widget-box clock-bar">
         <span id="small-clock" style="font-size: 2.2rem; color: #58a6ff; font-weight: bold; font-family: monospace;">--:--:--</span>
         <span id="small-date" style="font-size: 1.2rem; color: #8b949e; margin-left: 20px;">...</span>
     </div>
     
+    <!-- 2. Delfi panelis -->
     <div class="widget-box delfi-panel">
         <h2><span>LATVIJAS ZIŅAS (Delfi)</span></h2>
         <iframe src="https://m.delfi.lv/" width="100%" height="100%" frameborder="0" style="border: 0; background-color: white;"></iframe>
     </div>
     
+    <!-- 3. Sky News Live (Lielbritānija) -->
     <div class="widget-box uk-news">
-        <h2>The Telegraph (UK)</h2>
-        <iframe src="https://www.telegraph.co.uk/" width="100%" height="100%" frameborder="0" style="border: 0; background-color: white;"></iframe>
+        <h2>Al Jazeera Live (EN)</h2>
+        <iframe width="100%" height="100%" src="https://www.youtube.com/embed/live_stream?channel=UCNye-wNBqNL5ZzHSJj3l8Bg&autoplay=1&mute=1&controls=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
     </div>
     
+    <!-- 4. DW News Live (Vācija) -->
     <div class="widget-box de-news">
-        <h2>Die Welt (DE)</h2>
-        <iframe src="https://www.welt.de/" width="100%" height="100%" frameborder="0" style="border: 0; background-color: white;"></iframe>
+        <h2>DW News Live (DE)</h2>
+        <iframe width="100%" height="100%" src="https://www.youtube.com/embed/live_stream?channel=UCknLrEdhRCp1aegoMqRaCZg&autoplay=1&mute=1&controls=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
     </div>
 
+    <!-- 5. Waze Satiksme Smiltenē -->
     <div class="widget-box waze-smiltene">
         <h2>Satiksme Reāllaikā (Smiltene)</h2>
         <iframe src="https://embed.waze.com/iframe?zoom=12&lat=57.4244&lon=25.9016&ct=livemap&theme=dark" width="100%" height="100%" allowfullscreen style="border: 0;"></iframe>
     </div>
 </div>
 
+<!-- 6. Apakšējā Navigācijas Izvēlne -->
 <div class="bottom-nav">
     <a href="index.html">📈 Finance</a>
     <a href="latvija.html" class="active">🇱🇻 Latvija</a>
@@ -63,6 +70,7 @@
 </div>
 
 <script>
+    // Pulksteņa funkcija
     function updateClock() {
         const now = new Date();
         document.getElementById('small-clock').textContent = now.toLocaleTimeString('lv-LV', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
