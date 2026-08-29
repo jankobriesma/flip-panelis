@@ -4,56 +4,42 @@
     <meta charset="UTF-8">
     <meta http-equiv="refresh" content="3600">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FINANCE PANELIS</title>
+    <title>METEO!</title>
     <style>
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%;
-            background-color: #0d1117; color: #c9d1d9;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            overflow: hidden; 
+            background-color: #0d1117; color: #c9d1d9; font-family: -apple-system, sans-serif; overflow: hidden; 
         }
         
-        /* 1 liels augšā, 4 apakšā (2x2) un skrejošā rinda */
+        /* Pārkārtots vertikālais Grid: Pulkstenis, Radari (lieli), Windy grafiks, Yr.no grafiks */
         .dashboard-container {
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            grid-template-rows: 35fr 25fr 25fr 70px; 
-            gap: 15px; padding: 15px; 
-            height: calc(100vh - 110px); box-sizing: border-box;
+            display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 60px 2.5fr 1fr 1fr; 
+            gap: 15px; padding: 15px; height: calc(100vh - 110px); box-sizing: border-box;
         }
         
         .widget-box {
             background-color: #161b22; border-radius: 10px; border: 1px solid #30363d;
             overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
-        
         .widget-box h2 {
-            margin: 0; padding: 12px 15px; font-size: 1.1rem; border-bottom: 1px solid #30363d;
-            background-color: #21262d; display: flex; justify-content: space-between; align-items: center;
+            margin: 0; padding: 12px 15px; font-size: 1.2rem; font-weight: bold; border-bottom: 1px solid #30363d;
+            background-color: #21262d; display: flex; justify-content: space-between; align-items: center; color: #58a6ff;
         }
         
-        /* Grafiku pozīcijas */
-        .sp500-panel { grid-column: 1 / 3; grid-row: 1 / 2; }
-        .stoxx-panel { grid-column: 1 / 2; grid-row: 2 / 3; }
-        .gold-panel { grid-column: 2 / 3; grid-row: 2 / 3; }
-        .usdeur-panel { grid-column: 1 / 2; grid-row: 3 / 4; }
-        .oil-panel { grid-column: 2 / 3; grid-row: 3 / 4; }
-        .ticker-panel { grid-column: 1 / 3; grid-row: 4 / 5; }
+        /* Pozīcijas */
+        .clock-bar { grid-column: 1 / 3; grid-row: 1 / 2; flex-direction: row; justify-content: center; align-items: center; background-color: #21262d; }
+        .radar-panel { grid-column: 1 / 2; grid-row: 2 / 3; }
+        .wind-panel { grid-column: 2 / 3; grid-row: 2 / 3; }
+        .forecast-panel { grid-column: 1 / 3; grid-row: 3 / 4; }
+        .yr-panel { grid-column: 1 / 3; grid-row: 4 / 5; } /* Jaunais Yr.no bloks pašā apakšā */
         
-        .tradingview-widget-container { flex-grow: 1; height: 100%; width: 100%; }
-
         .bottom-nav {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            background-color: #161b22; border-top: 1px solid #30363d;
-            display: flex; justify-content: space-between; align-items: center;
-            height: 90px; padding: 0 15px; box-sizing: border-box; z-index: 9999; 
-            box-shadow: 0 -5px 15px rgba(0,0,0,0.5);
+            position: fixed; bottom: 0; left: 0; width: 100%; background-color: #161b22; border-top: 1px solid #30363d;
+            display: flex; justify-content: space-between; align-items: center; height: 90px; padding: 0 15px; box-sizing: border-box; z-index: 9999; 
         }
         .bottom-nav a {
-            text-decoration: none; flex: 1; text-align: center; margin: 0 10px;
-            padding: 15px 0; background-color: #21262d;
-            color: #c9d1d9; border-radius: 12px; font-size: 1.4rem; font-weight: bold;
-            border: 2px solid #30363d; transition: all 0.2s;
+            text-decoration: none; flex: 1; text-align: center; margin: 0 10px; padding: 15px 0; background-color: #21262d;
+            color: #c9d1d9; border-radius: 12px; font-size: 1.4rem; font-weight: bold; border: 2px solid #30363d; transition: all 0.2s;
         }
         .bottom-nav a:active { border-color: #58a6ff; background-color: #30363d; transform: scale(0.95); }
         .bottom-nav a.active { border-color: #58a6ff; color: #58a6ff; }
@@ -61,259 +47,64 @@
     </style>
 </head>
 <body>
-
 <div class="dashboard-container">
     
-    <!-- 1. S&P 500 (Galvenais, pa visu platumu) -->
-    <div class="widget-box sp500-panel">
-        <h2>
-            <span>S&P 500 Index</span>
-            <span style="color: #8b949e; font-size: 0.9rem;">ASV Birža atveras: <span id="market-countdown" style="color: #ff7b72; font-weight: bold; font-family: monospace; font-size: 1.1rem;">--:--:--</span></span>
-        </h2>
-        <div class="tradingview-widget-container">
-            <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px); width:100%;"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-            { "autosize": true, "symbol": "FOREXCOM:SPXUSD", "interval": "D", "range": "3M", "timezone": "Europe/Riga", "theme": "dark", "style": "1", "locale": "en", "enable_publishing": false, "backgroundColor": "#161b22", "gridColor": "#30363d", "hide_top_toolbar": false, "hide_legend": false, "save_image": false }
-            </script>
-        </div>
+    <!-- 1. Pulksteņa rinda (Augšā) -->
+    <div class="widget-box clock-bar">
+        <span id="small-clock" style="font-size: 2.2rem; color: #58a6ff; font-weight: bold; font-family: monospace;">--:--:--</span>
+        <span id="small-date" style="font-size: 1.2rem; color: #8b949e; margin-left: 20px;">...</span>
     </div>
-
-    <!-- 2. STOXX 600 (ETF Tracker) -->
-    <div class="widget-box stoxx-panel">
-        <h2>Eiropas Akcijas (STOXX 600)</h2>
-        <div class="tradingview-widget-container">
-            <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px); width:100%;"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-            { "autosize": true, "symbol": "XETR:EXSA", "interval": "D", "range": "3M", "timezone": "Europe/Riga", "theme": "dark", "style": "1", "locale": "en", "enable_publishing": false, "backgroundColor": "#161b22", "gridColor": "#30363d", "hide_top_toolbar": false, "hide_legend": false, "save_image": false }
-            </script>
-        </div>
-    </div>
-
-    <!-- 3. Zelts EUR -->
-    <div class="widget-box gold-panel">
-        <h2>Zelts (XAU / EUR)</h2>
-        <div class="tradingview-widget-container">
-            <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px); width:100%;"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-            { "autosize": true, "symbol": "OANDA:XAUEUR", "interval": "D", "range": "3M", "timezone": "Europe/Riga", "theme": "dark", "style": "1", "locale": "en", "enable_publishing": false, "backgroundColor": "#161b22", "gridColor": "#30363d", "hide_top_toolbar": false, "hide_legend": false, "save_image": false }
-            </script>
-        </div>
-    </div>
-
-    <!-- 4. Valūta USD / EUR -->
-    <div class="widget-box usdeur-panel">
-        <h2>Valūta (USD / EUR)</h2>
-        <div class="tradingview-widget-container">
-            <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px); width:100%;"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-            { "autosize": true, "symbol": "FX_IDC:USDEUR", "interval": "D", "range": "3M", "timezone": "Europe/Riga", "theme": "dark", "style": "1", "locale": "en", "enable_publishing": false, "backgroundColor": "#161b22", "gridColor": "#30363d", "hide_top_toolbar": false, "hide_legend": false, "save_image": false }
-            </script>
+    
+    <!-- 2. Radars (Vidū pa kreisi, liels vertikāls) -->
+    <div class="widget-box radar-panel">
+        <h2>Radars un Nokrišņi</h2>
+        <div style="flex-grow: 1; width: 100%; height: 100%;">
+            <iframe src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=7&overlay=rain&product=ecmwf&level=surface&lat=57.153&lon=24.854&marker=true" width="100%" height="100%" frameborder="0" style="border: 0;"></iframe>
         </div>
     </div>
     
-    <!-- 5. Brent Nafta -->
-    <div class="widget-box oil-panel">
-        <h2>Brent Nafta (USD)</h2>
-        <div class="tradingview-widget-container">
-            <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px); width:100%;"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-            { "autosize": true, "symbol": "TVC:UKOIL", "interval": "D", "range": "3M", "timezone": "Europe/Riga", "theme": "dark", "style": "1", "locale": "en", "enable_publishing": false, "backgroundColor": "#161b22", "gridColor": "#30363d", "hide_top_toolbar": false, "hide_legend": false, "save_image": false }
-            </script>
+    <!-- 3. Vējš (Vidū pa labi, liels vertikāls) -->
+    <div class="widget-box wind-panel">
+        <h2>Vēja Plūsmas</h2>
+        <div style="flex-grow: 1; width: 100%; height: 100%;">
+            <iframe src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=7&overlay=wind&product=ecmwf&level=surface&lat=57.153&lon=24.854" width="100%" height="100%" frameborder="0" style="border: 0;"></iframe>
         </div>
     </div>
 
-    <!-- 6. Skrejošā rinda -->
-    <div class="widget-box ticker-panel">
-        <div class="tradingview-widget-container" style="display:flex; align-items:center; height:100%;">
-            <div class="tradingview-widget-container__widget" style="width: 100%;"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
-            { "symbols": [ { "proName": "FOREXCOM:SPXUSD", "title": "S&P 500" }, { "proName": "XETR:EXSA", "title": "STOXX 600" }, { "proName": "OANDA:XAUEUR", "title": "Zelts (EUR)" }, { "proName": "TVC:UKOIL", "title": "Brent Nafta" }, { "proName": "FX_IDC:USDEUR", "title": "USD/EUR" }, { "description": "Apple", "proName": "NASDAQ:AAPL" }, { "description": "Nvidia", "proName": "NASDAQ:NVDA" }, { "description": "Tesla", "proName": "NASDAQ:TSLA" } ], "showSymbolLogo": true, "isTransparent": true, "displayMode": "adaptive", "colorTheme": "dark", "locale": "en" }
-            </script>
+    <!-- 4. Windy Meteogramma (Pa visu platumu) -->
+    <div class="widget-box forecast-panel">
+        <h2>Windy Meteogramma (Sigulda)</h2>
+        <div style="flex-grow: 1; width: 100%; height: 100%; background-color: #ffffff;">
+            <iframe width="100%" height="100%" src="https://embed.windy.com/embed.html?type=forecast&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=11&overlay=wind&product=ecmwf&level=surface&lat=57.153&lon=24.854&detailLat=57.153&detailLon=24.854&detail=true" frameborder="0" style="border:0;"></iframe>
         </div>
     </div>
 
+    <!-- 5. Yr.no Norvēģu Laika Ziņas (Pa visu platumu apakšā) -->
+    <div class="widget-box yr-panel">
+        <h2>Norvēģu Laika Ziņas (Yr.no) - Sigulda</h2>
+        <div style="flex-grow: 1; width: 100%; height: 100%; background-color: #161b22;">
+            <!-- Izmantojam oficiālo Yr.no logrīku Siguldai (455718) tumšajā režīmā -->
+            <iframe src="https://www.yr.no/en/content/2-455718/table.html?mode=dark" width="100%" height="100%" frameborder="0" style="border:0;"></iframe>
+        </div>
+    </div>
+    
 </div>
 
-<!-- Apakšējā izvēlne -->
 <div class="bottom-nav">
-    <a href="index.html" class="active">📈 Finance</a>
+    <a href="index.html">📈 Finance</a>
     <a href="latvija.html">🇱🇻 Latvija</a>
     <a href="sigulda.html">⏱️ Sigulda</a>
-    <a href="meteo.html" class="meteo-btn">🌪️ METEO!</a>
+    <a href="meteo.html" class="active meteo-btn">🌪️ METEO!</a>
 </div>
 
 <script>
-    function updateCountdown() {
-        const now = new Date(); let target = new Date(); target.setHours(16, 30, 0, 0);
-        if (now > target) { target.setDate(target.getDate() + 1); }
-        if (target.getDay() === 6) target.setDate(target.getDate() + 2);
-        if (target.getDay() === 0) target.setDate(target.getDate() + 1);
-        const diff = target - now;
-        const h = Math.floor((diff / (1000 * 60 * 60)) % 24).toString().padStart(2, '0');
-        const m = Math.floor((diff / 1000 / 60) % 60).toString().padStart(2, '0');
-        const s = Math.floor((diff / 1000) % 60).toString().padStart(2, '0');
-        document.getElementById('market-countdown').textContent = `${h}:${m}:${s}`;
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('small-clock').textContent = now.toLocaleTimeString('lv-LV', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        let dateString = now.toLocaleDateString('lv-LV', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        document.getElementById('small-date').textContent = dateString.charAt(0).toUpperCase() + dateString.slice(1);
     }
-    setInterval(updateCountdown, 1000); updateCountdown();
-</script>
-</body>
-</html><!DOCTYPE html>
-<html lang="lv">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="3600">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FINANCE PANELIS</title>
-    <style>
-        body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%;
-            background-color: #0d1117; color: #c9d1d9;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            overflow: hidden; 
-        }
-        
-        /* 1 liels augšā, 4 apakšā (2x2) un skrejošā rinda */
-        .dashboard-container {
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            grid-template-rows: 35fr 25fr 25fr 70px; 
-            gap: 15px; padding: 15px; 
-            height: calc(100vh - 110px); box-sizing: border-box;
-        }
-        
-        .widget-box {
-            background-color: #161b22; border-radius: 10px; border: 1px solid #30363d;
-            overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
-        
-        .widget-box h2 {
-            margin: 0; padding: 12px 15px; font-size: 1.1rem; border-bottom: 1px solid #30363d;
-            background-color: #21262d; display: flex; justify-content: space-between; align-items: center;
-        }
-        
-        /* Grafiku pozīcijas */
-        .sp500-panel { grid-column: 1 / 3; grid-row: 1 / 2; }
-        .stoxx-panel { grid-column: 1 / 2; grid-row: 2 / 3; }
-        .gold-panel { grid-column: 2 / 3; grid-row: 2 / 3; }
-        .usdeur-panel { grid-column: 1 / 2; grid-row: 3 / 4; }
-        .oil-panel { grid-column: 2 / 3; grid-row: 3 / 4; }
-        .ticker-panel { grid-column: 1 / 3; grid-row: 4 / 5; }
-        
-        .tradingview-widget-container { flex-grow: 1; height: 100%; width: 100%; }
-
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            background-color: #161b22; border-top: 1px solid #30363d;
-            display: flex; justify-content: space-between; align-items: center;
-            height: 90px; padding: 0 15px; box-sizing: border-box; z-index: 9999; 
-            box-shadow: 0 -5px 15px rgba(0,0,0,0.5);
-        }
-        .bottom-nav a {
-            text-decoration: none; flex: 1; text-align: center; margin: 0 10px;
-            padding: 15px 0; background-color: #21262d;
-            color: #c9d1d9; border-radius: 12px; font-size: 1.4rem; font-weight: bold;
-            border: 2px solid #30363d; transition: all 0.2s;
-        }
-        .bottom-nav a:active { border-color: #58a6ff; background-color: #30363d; transform: scale(0.95); }
-        .bottom-nav a.active { border-color: #58a6ff; color: #58a6ff; }
-        .bottom-nav a.meteo-btn.active { border-color: #ff7b72; color: #ff7b72; }
-    </style>
-</head>
-<body>
-
-<div class="dashboard-container">
-    
-    <!-- 1. S&P 500 (Galvenais, pa visu platumu) -->
-    <div class="widget-box sp500-panel">
-        <h2>
-            <span>S&P 500 Index</span>
-            <span style="color: #8b949e; font-size: 0.9rem;">ASV Birža atveras: <span id="market-countdown" style="color: #ff7b72; font-weight: bold; font-family: monospace; font-size: 1.1rem;">--:--:--</span></span>
-        </h2>
-        <div class="tradingview-widget-container">
-            <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px); width:100%;"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-            { "autosize": true, "symbol": "FOREXCOM:SPXUSD", "interval": "D", "range": "3M", "timezone": "Europe/Riga", "theme": "dark", "style": "1", "locale": "en", "enable_publishing": false, "backgroundColor": "#161b22", "gridColor": "#30363d", "hide_top_toolbar": false, "hide_legend": false, "save_image": false }
-            </script>
-        </div>
-    </div>
-
-    <!-- 2. STOXX 600 (ETF Tracker) -->
-    <div class="widget-box stoxx-panel">
-        <h2>Eiropas Akcijas (STOXX 600)</h2>
-        <div class="tradingview-widget-container">
-            <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px); width:100%;"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-            { "autosize": true, "symbol": "XETR:EXSA", "interval": "D", "range": "3M", "timezone": "Europe/Riga", "theme": "dark", "style": "1", "locale": "en", "enable_publishing": false, "backgroundColor": "#161b22", "gridColor": "#30363d", "hide_top_toolbar": false, "hide_legend": false, "save_image": false }
-            </script>
-        </div>
-    </div>
-
-    <!-- 3. Zelts EUR -->
-    <div class="widget-box gold-panel">
-        <h2>Zelts (XAU / EUR)</h2>
-        <div class="tradingview-widget-container">
-            <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px); width:100%;"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-            { "autosize": true, "symbol": "OANDA:XAUEUR", "interval": "D", "range": "3M", "timezone": "Europe/Riga", "theme": "dark", "style": "1", "locale": "en", "enable_publishing": false, "backgroundColor": "#161b22", "gridColor": "#30363d", "hide_top_toolbar": false, "hide_legend": false, "save_image": false }
-            </script>
-        </div>
-    </div>
-
-    <!-- 4. Valūta USD / EUR -->
-    <div class="widget-box usdeur-panel">
-        <h2>Valūta (USD / EUR)</h2>
-        <div class="tradingview-widget-container">
-            <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px); width:100%;"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-            { "autosize": true, "symbol": "FX_IDC:USDEUR", "interval": "D", "range": "3M", "timezone": "Europe/Riga", "theme": "dark", "style": "1", "locale": "en", "enable_publishing": false, "backgroundColor": "#161b22", "gridColor": "#30363d", "hide_top_toolbar": false, "hide_legend": false, "save_image": false }
-            </script>
-        </div>
-    </div>
-    
-    <!-- 5. Brent Nafta -->
-    <div class="widget-box oil-panel">
-        <h2>Brent Nafta (USD)</h2>
-        <div class="tradingview-widget-container">
-            <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px); width:100%;"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-            { "autosize": true, "symbol": "TVC:UKOIL", "interval": "D", "range": "3M", "timezone": "Europe/Riga", "theme": "dark", "style": "1", "locale": "en", "enable_publishing": false, "backgroundColor": "#161b22", "gridColor": "#30363d", "hide_top_toolbar": false, "hide_legend": false, "save_image": false }
-            </script>
-        </div>
-    </div>
-
-    <!-- 6. Skrejošā rinda -->
-    <div class="widget-box ticker-panel">
-        <div class="tradingview-widget-container" style="display:flex; align-items:center; height:100%;">
-            <div class="tradingview-widget-container__widget" style="width: 100%;"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
-            { "symbols": [ { "proName": "FOREXCOM:SPXUSD", "title": "S&P 500" }, { "proName": "XETR:EXSA", "title": "STOXX 600" }, { "proName": "OANDA:XAUEUR", "title": "Zelts (EUR)" }, { "proName": "TVC:UKOIL", "title": "Brent Nafta" }, { "proName": "FX_IDC:USDEUR", "title": "USD/EUR" }, { "description": "Apple", "proName": "NASDAQ:AAPL" }, { "description": "Nvidia", "proName": "NASDAQ:NVDA" }, { "description": "Tesla", "proName": "NASDAQ:TSLA" } ], "showSymbolLogo": true, "isTransparent": true, "displayMode": "adaptive", "colorTheme": "dark", "locale": "en" }
-            </script>
-        </div>
-    </div>
-
-</div>
-
-<!-- Apakšējā izvēlne -->
-<div class="bottom-nav">
-    <a href="index.html" class="active">📈 Finance</a>
-    <a href="latvija.html">🇱🇻 Latvija</a>
-    <a href="sigulda.html">⏱️ Sigulda</a>
-    <a href="meteo.html" class="meteo-btn">🌪️ METEO!</a>
-</div>
-
-<script>
-    function updateCountdown() {
-        const now = new Date(); let target = new Date(); target.setHours(16, 30, 0, 0);
-        if (now > target) { target.setDate(target.getDate() + 1); }
-        if (target.getDay() === 6) target.setDate(target.getDate() + 2);
-        if (target.getDay() === 0) target.setDate(target.getDate() + 1);
-        const diff = target - now;
-        const h = Math.floor((diff / (1000 * 60 * 60)) % 24).toString().padStart(2, '0');
-        const m = Math.floor((diff / 1000 / 60) % 60).toString().padStart(2, '0');
-        const s = Math.floor((diff / 1000) % 60).toString().padStart(2, '0');
-        document.getElementById('market-countdown').textContent = `${h}:${m}:${s}`;
-    }
-    setInterval(updateCountdown, 1000); updateCountdown();
+    setInterval(updateClock, 1000); updateClock();
 </script>
 </body>
 </html>
