@@ -11,7 +11,6 @@
             background-color: #0d1117; color: #c9d1d9; font-family: -apple-system, sans-serif; overflow: hidden; 
         }
         
-        /* Pārkārtots Grid: tagad ir tikai 3 rindas (Pulkstenis, Kartes, Kombinētā Prognoze apakšā) */
         .dashboard-container {
             display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 60px 1.5fr 1fr; 
             gap: 15px; padding: 15px; height: calc(100vh - 110px); box-sizing: border-box;
@@ -26,11 +25,10 @@
             background-color: #21262d; display: flex; justify-content: space-between; align-items: center; color: #58a6ff;
         }
         
-        /* Pozīcijas */
         .clock-bar { grid-column: 1 / 3; grid-row: 1 / 2; flex-direction: row; justify-content: center; align-items: center; background-color: #21262d; }
         .radar-panel { grid-column: 1 / 2; grid-row: 2 / 3; }
         .wind-panel { grid-column: 2 / 3; grid-row: 2 / 3; }
-        .combined-forecast-panel { grid-column: 1 / 3; grid-row: 3 / 4; } /* Apvienotais bloks pašā apakšā */
+        .combined-forecast-panel { grid-column: 1 / 3; grid-row: 3 / 4; }
         
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; width: 100%; background-color: #161b22; border-top: 1px solid #30363d;
@@ -75,13 +73,13 @@
         <h2>Prognoze (Sigulda) - Windy & Yr.no</h2>
         <div style="display: flex; flex-direction: column; width: 100%; height: 100%;">
             
-            <!-- Windy ar fiksētu augstumu (280px), lai pazustu pelēkā josla -->
-            <div style="height: 280px; width: 100%; background-color: #ffffff;">
-                <iframe width="100%" height="100%" src="https://embed.windy.com/embed.html?type=forecast&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=11&overlay=wind&product=ecmwf&level=surface&lat=57.153&lon=24.854&detailLat=57.153&detailLon=24.854&detail=true" frameborder="0" style="border:0;"></iframe>
+            <!-- Precīzi apgriezts augstums (195px) un paslēpts pārpalikums (overflow: hidden), lai neredzētu pelēko karti -->
+            <div style="height: 195px; width: 100%; background-color: #ffffff; overflow: hidden;">
+                <iframe width="100%" height="100%" src="https://embed.windy.com/embed.html?type=forecast&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=11&overlay=wind&product=ecmwf&level=surface&lat=57.153&lon=24.854&detailLat=57.153&detailLon=24.854&detail=true" frameborder="0" style="border:0; margin-top: -5px;"></iframe>
             </div>
             
-            <!-- Yr.no automātiski aizpilda visu atlikušo vietu loga apakšā -->
-            <div style="flex-grow: 1; width: 100%; background-color: #161b22;">
+            <!-- Yr.no automātiski pievelkas klāt un aizpilda pārējo vietu -->
+            <div style="flex-grow: 1; width: 100%; background-color: #161b22; border-top: 1px solid #30363d;">
                 <iframe src="https://www.yr.no/en/content/2-455718/table.html?mode=dark" width="100%" height="100%" frameborder="0" style="border:0;"></iframe>
             </div>
             
