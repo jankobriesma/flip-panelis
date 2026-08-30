@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="3600">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEWS PANELIS</title>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #0d1117; color: #c9d1d9; font-family: -apple-system, sans-serif; overflow: hidden; }
+        
+        /* Divas platas, vienādas kolonnas: BBC un Welt */
+        .dashboard-container { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 60px 1fr; gap: 15px; padding: 15px; height: calc(100vh - 110px); box-sizing: border-box; }
+        .widget-box { background-color: #161b22; border-radius: 10px; border: 1px solid #30363d; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .widget-box h2 { margin: 0; padding: 12px 15px; font-size: 1.2rem; font-weight: bold; border-bottom: 1px solid #30363d; background-color: #21262d; display: flex; justify-content: space-between; align-items: center; color: #c9d1d9; }
+        
+        .clock-bar { grid-column: 1 / 3; grid-row: 1 / 2; flex-direction: row; justify-content: center; align-items: center; background-color: #21262d; }
+        .bbc-panel { grid-column: 1 / 2; grid-row: 2 / 3; }
+        .welt-panel { grid-column: 2 / 3; grid-row: 2 / 3; }
+        
+        /* Ziņu saraksta dizains */
+        .news-container { padding: 25px; overflow-y: auto; height: 100%; box-sizing: border-box; background-color: #0d1117; }
+        .news-item { margin-bottom: 25px; border-bottom: 1px solid #30363d; padding-bottom: 20px; }
+        .news-item:last-child { border-bottom: none; }
+        .news-date { font-size: 0.9rem; color: #58a6ff; margin-bottom: 8px; font-family: monospace; }
+        .news-title { font-size: 1.3rem; font-weight: bold; color: #c9d1d9; margin-bottom: 12px; line-height: 1.3; }
+        .news-desc { font-size: 1.05rem; color: #8b949e; line-height: 1.5; }
+        
+        /* Smuks ritināšanas stienītis */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #161b22; }
+        ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: #58a6ff; }
+
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #161b22; border-top: 1px solid #30363d; display: flex; justify-content: space-between; align-items: center; height: 90px; padding: 0 15px; box-sizing: border-box; z-index: 9999; }
+        .bottom-nav a { text-decoration: none; flex: 1; text-align: center; margin: 0 10px; padding: 15px 0; background-color: #21262d; color: #c9d1d9; border-radius: 12px; font-size: 1.4rem; font-weight: bold; border: 2px solid #30363d; transition: all 0.2s; }
+        .bottom-nav a:active { border-color: #58a6ff; background-color: #30363d; transform: scale(0.95); }
+        .bottom-nav a.active { border-color: #58a6ff; color: #58a6ff; }
+        .bottom-nav a.meteo-btn.active { border-color: #ff7b72; color: #ff7b72; }
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+    
+    <!-- Pulkstenis -->
+    <div class="widget-box clock-bar">
+        <span id="small-clock" style="font-size: 2.2rem; color: #58a6ff; font-weight: bold; font-family: monospace;">--:--:--</span>
+        <span id="small-date" style="font-size: 1.2rem; color: #8b949e; margin-left: 20px;">...</span>
+    </div>
+    
+    <!-- BBC News (Angliski) -->
+    <div class="widget-box bbc-panel">
+        <h2>BBC World News (UK)</h2>
+        <div id="bbc-news" class="news-container">Ielādē ziņas...</div>
+    </div>
+    
+    <!-- Die Welt News (Vāciski) -->
+    <div class="widget-box welt-panel">
+        <h2>Die Welt (DE)</h2>
+        <div id="welt-news" class="news-container">Ielādē ziņas...</div>
+    </div>
+
+</div>
+
+<!-- Navigācija -->
+<div class="bottom-nav">
+    <a href="index.html">📈 Finance</a>
+    <a href="news.html" class="active">📰 News</a>
+    <a href="sigulda.html">⏱️ Sigulda</a>
+    <a href="meteo.html" class="meteo-btn">🌪️ METEO!</a>
+</div>
+
+<script>
+    // 1. Pulksteņa funkcija
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('small-clock').textContent = now.toLocaleTimeString('lv-LV', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        let dateString = now.toLocaleDateString('lv-LV', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        document.getElementById('small-date').textContent = dateString.charAt(0).toUpperCase() + dateString.slice(1);
+    }
+    setInterval(updateClock, 1000); updateClock();
+
+    // 2. Ziņu ievākšanas funkcija
+    async function fetchNews(rssUrl, containerId) {
+        const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+        try {
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            // Ņemam jaunākās 15 ziņas
+            data.items.slice(0, 15).forEach(item => {
+                let cleanDesc = item.description.replace(/<[^>]*>?/gm, '');
+                if (cleanDesc.length > 200) cleanDesc = cleanDesc.substring(0, 200) + '...';
+                
+                let dateStr = item.pubDate.substring(0, 16);
+                
+                container.innerHTML += `
+                    <div class="news-item">
+                        <div class="news-date">${dateStr}</div>
+                        <div class="news-title">${item.title}</div>
+                        <div class="news-desc">${cleanDesc}</div>
+                    </div>
+                `;
+            });
+        } catch (error) {
+            document.getElementById(containerId).innerHTML = '<div style="color: #ff7b72;">Neizdevās ielādēt ziņas. Pārbaudiet interneta savienojumu.</div>';
+        }
+    }
+
+    // Palaižam ziņu plūsmas
+    fetchNews('http://feeds.bbci.co.uk/news/world/rss.xml', 'bbc-news');
+    fetchNews('https://www.welt.de/feeds/latest.rss', 'welt-news');
+</script>
+</body>
+</html>
