@@ -56,13 +56,15 @@
         <div id="sigulda-news" class="news-container">Ielādē ziņas...</div>
     </div>
     
-   <!-- Siguldas Īsā Prognoze un Gaisa Kvalitāte -->
+    <!-- Siguldas Webkamera (Zelta Rudens Vērošanai) -->
     <div class="widget-box webcam-panel">
-        <h2>Aktuālie Laikapstākļi Siguldā</h2>
-        <div style="flex-grow: 1; width: 100%; height: 100%; background-color: #161b22; overflow:hidden;">
-            <iframe width="100%" height="100%" src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=11&overlay=temp&product=ecmwf&level=surface&lat=57.153&lon=24.854&detailLat=57.153&detailLon=24.854&marker=true" frameborder="0" style="border:0;"></iframe>
+        <h2>Siguldas Tiešsaistes Kamera (Gaujas Senleja)</h2>
+        <div style="flex-grow: 1; width: 100%; height: 100%; background-color: #000;">
+            <!-- Iegulstam stabilu Windy kameras spēlētāju Siguldai (atjaunojas automātiski) -->
+            <iframe src="https://webcams.windy.com/webcams/public/embed/player/1215504944/day" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>
         </div>
     </div>
+</div>
 
 <div class="bottom-nav">
     <a href="index.html">📈 Finance</a>
@@ -114,4 +116,3 @@
 </script>
 </body>
 </html>
-
