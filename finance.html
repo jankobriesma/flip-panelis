@@ -13,7 +13,6 @@
             overflow: hidden; 
         }
         
-        /* 1 kolonna visam ekrānam, 5 vienādi augsti grafiki rindā uz leju + skrejošā rinda apakšā */
         .dashboard-container {
             display: grid; 
             grid-template-columns: 1fr; 
@@ -32,7 +31,6 @@
             background-color: #21262d; display: flex; justify-content: space-between; align-items: center;
         }
         
-        /* Pozīcijas jaunajā vertikālajā izkārtojumā */
         .sp500-panel { grid-row: 1 / 2; }
         .stoxx-panel { grid-row: 2 / 3; }
         .gold-panel { grid-row: 3 / 4; }
@@ -73,7 +71,7 @@
         <div class="tradingview-widget-container">
             <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px); width:100%;"></div>
             <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-            { "autosize": true, "symbol": "FOREXCOM:SPXUSD", "interval": "240", "range": "3M", "timezone": "Europe/Riga", "theme": "dark", "style": "1", "locale": "en", "enable_publishing": false, "backgroundColor": "#161b22", "gridColor": "#30363d", "hide_top_toolbar": false, "hide_legend": false, "save_image": false }
+            { "autosize": true, "symbol": "FOREXCOM:SPXUSD", "interval": "240", "range": "3M", "timezone": "Europe/Riga", "theme": "dark", "style": "1", "locale": "en", "enable_publishing": false, "backgroundColor": "#161b22", "gridColor": "#30363d", "hide_top_toolbar": false, "hide_legend": false, "save_image": false, "hide_volume": true }
             </script>
         </div>
     </div>
@@ -84,7 +82,7 @@
         <div class="tradingview-widget-container">
             <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px); width:100%;"></div>
             <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-            { "autosize": true, "symbol": "OANDA:EU50EUR", "interval": "240", "range": "3M", "timezone": "Europe/Riga", "theme": "dark", "style": "1", "locale": "en", "enable_publishing": false, "backgroundColor": "#161b22", "gridColor": "#30363d", "hide_top_toolbar": false, "hide_legend": false, "save_image": false }
+            { "autosize": true, "symbol": "OANDA:EU50EUR", "interval": "240", "range": "3M", "timezone": "Europe/Riga", "theme": "dark", "style": "1", "locale": "en", "enable_publishing": false, "backgroundColor": "#161b22", "gridColor": "#30363d", "hide_top_toolbar": false, "hide_legend": false, "save_image": false, "hide_volume": true }
             </script>
         </div>
     </div>
@@ -95,7 +93,7 @@
         <div class="tradingview-widget-container">
             <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px); width:100%;"></div>
             <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-            { "autosize": true, "symbol": "OANDA:XAUEUR", "interval": "240", "range": "3M", "timezone": "Europe/Riga", "theme": "dark", "style": "1", "locale": "en", "enable_publishing": false, "backgroundColor": "#161b22", "gridColor": "#30363d", "hide_top_toolbar": false, "hide_legend": false, "save_image": false }
+            { "autosize": true, "symbol": "OANDA:XAUEUR", "interval": "240", "range": "3M", "timezone": "Europe/Riga", "theme": "dark", "style": "1", "locale": "en", "enable_publishing": false, "backgroundColor": "#161b22", "gridColor": "#30363d", "hide_top_toolbar": false, "hide_legend": false, "save_image": false, "hide_volume": true }
             </script>
         </div>
     </div>
@@ -106,7 +104,7 @@
         <div class="tradingview-widget-container">
             <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px); width:100%;"></div>
             <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-            { "autosize": true, "symbol": "FX_IDC:USDEUR", "interval": "240", "range": "3M", "timezone": "Europe/Riga", "theme": "dark", "style": "1", "locale": "en", "enable_publishing": false, "backgroundColor": "#161b22", "gridColor": "#30363d", "hide_top_toolbar": false, "hide_legend": false, "save_image": false }
+            { "autosize": true, "symbol": "FX_IDC:USDEUR", "interval": "240", "range": "3M", "timezone": "Europe/Riga", "theme": "dark", "style": "1", "locale": "en", "enable_publishing": false, "backgroundColor": "#161b22", "gridColor": "#30363d", "hide_top_toolbar": false, "hide_legend": false, "save_image": false, "hide_volume": true }
             </script>
         </div>
     </div>
@@ -117,7 +115,7 @@
         <div class="tradingview-widget-container">
             <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px); width:100%;"></div>
             <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-            { "autosize": true, "symbol": "TVC:UKOIL", "interval": "240", "range": "3M", "timezone": "Europe/Riga", "theme": "dark", "style": "1", "locale": "en", "enable_publishing": false, "backgroundColor": "#161b22", "gridColor": "#30363d", "hide_top_toolbar": false, "hide_legend": false, "save_image": false }
+            { "autosize": true, "symbol": "TVC:UKOIL", "interval": "240", "range": "3M", "timezone": "Europe/Riga", "theme": "dark", "style": "1", "locale": "en", "enable_publishing": false, "backgroundColor": "#161b22", "gridColor": "#30363d", "hide_top_toolbar": false, "hide_legend": false, "save_image": false, "hide_volume": true }
             </script>
         </div>
     </div>
@@ -136,8 +134,9 @@
 
 <!-- Apakšējā izvēlne -->
 <div class="bottom-nav">
-    <a href="finance.html" class="active">📈 Finance</a>
+    <a href="index.html" class="active">📈 Finance</a>
     <a href="news.html">📰 News</a>
+    <a href="cams.html">📷 Kameras</a>
     <a href="sigulda.html">⏱️ Sigulda</a>
     <a href="meteo.html" class="meteo-btn">🌪️ METEO!</a>
 </div>
