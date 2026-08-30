@@ -4,24 +4,42 @@
     <meta charset="UTF-8">
     <meta http-equiv="refresh" content="3600">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LATVIJAS PANELIS</title>
+    <title>METEO!</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #0d1117; color: #c9d1d9; font-family: -apple-system, sans-serif; overflow: hidden; }
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: #0d1117; color: #c9d1d9; font-family: -apple-system, sans-serif; overflow: hidden; 
+        }
+        
+        /* Pārkārtots Grid: tagad ir tikai 3 rindas (Pulkstenis, Kartes, Kombinētā Prognoze apakšā) */
         .dashboard-container {
-            display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 60px 1fr 1fr; 
+            display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 60px 1.5fr 1fr; 
             gap: 15px; padding: 15px; height: calc(100vh - 110px); box-sizing: border-box;
         }
-        .widget-box { background-color: #161b22; border-radius: 10px; border: 1px solid #30363d; overflow: hidden; display: flex; flex-direction: column; }
-        .widget-box h2 { margin: 0; padding: 10px 15px; font-size: 1.1rem; border-bottom: 1px solid #30363d; background-color: #21262d; display: flex; justify-content: space-between; align-items: center; }
         
-        .clock-bar { grid-column: 1 / 4; grid-row: 1 / 2; flex-direction: row; justify-content: center; align-items: center; background-color: #21262d; }
-        .delfi-panel { grid-column: 1 / 2; grid-row: 2 / 4; }
-        .uk-news { grid-column: 2 / 3; grid-row: 2 / 3; }
-        .de-news { grid-column: 2 / 3; grid-row: 3 / 4; }
-        .waze-smiltene { grid-column: 3 / 4; grid-row: 2 / 4; }
+        .widget-box {
+            background-color: #161b22; border-radius: 10px; border: 1px solid #30363d;
+            overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .widget-box h2 {
+            margin: 0; padding: 12px 15px; font-size: 1.2rem; font-weight: bold; border-bottom: 1px solid #30363d;
+            background-color: #21262d; display: flex; justify-content: space-between; align-items: center; color: #58a6ff;
+        }
         
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #161b22; border-top: 1px solid #30363d; display: flex; justify-content: space-between; align-items: center; height: 90px; padding: 0 15px; box-sizing: border-box; z-index: 9999; }
-        .bottom-nav a { text-decoration: none; flex: 1; text-align: center; margin: 0 10px; padding: 15px 0; background-color: #21262d; color: #c9d1d9; border-radius: 12px; font-size: 1.4rem; font-weight: bold; border: 2px solid #30363d; transition: all 0.2s; }
+        /* Pozīcijas */
+        .clock-bar { grid-column: 1 / 3; grid-row: 1 / 2; flex-direction: row; justify-content: center; align-items: center; background-color: #21262d; }
+        .radar-panel { grid-column: 1 / 2; grid-row: 2 / 3; }
+        .wind-panel { grid-column: 2 / 3; grid-row: 2 / 3; }
+        .combined-forecast-panel { grid-column: 1 / 3; grid-row: 3 / 4; } /* Apvienotais bloks pašā apakšā */
+        
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%; background-color: #161b22; border-top: 1px solid #30363d;
+            display: flex; justify-content: space-between; align-items: center; height: 90px; padding: 0 15px; box-sizing: border-box; z-index: 9999; 
+        }
+        .bottom-nav a {
+            text-decoration: none; flex: 1; text-align: center; margin: 0 10px; padding: 15px 0; background-color: #21262d;
+            color: #c9d1d9; border-radius: 12px; font-size: 1.4rem; font-weight: bold; border: 2px solid #30363d; transition: all 0.2s;
+        }
         .bottom-nav a:active { border-color: #58a6ff; background-color: #30363d; transform: scale(0.95); }
         .bottom-nav a.active { border-color: #58a6ff; color: #58a6ff; }
         .bottom-nav a.meteo-btn.active { border-color: #ff7b72; color: #ff7b72; }
@@ -30,47 +48,56 @@
 <body>
 <div class="dashboard-container">
     
-    <!-- 1. Augšējā pulksteņa rinda -->
+    <!-- 1. Pulksteņa rinda (Augšā) -->
     <div class="widget-box clock-bar">
         <span id="small-clock" style="font-size: 2.2rem; color: #58a6ff; font-weight: bold; font-family: monospace;">--:--:--</span>
         <span id="small-date" style="font-size: 1.2rem; color: #8b949e; margin-left: 20px;">...</span>
     </div>
     
-    <!-- 2. Delfi panelis -->
-    <div class="widget-box delfi-panel">
-        <h2><span>LATVIJAS ZIŅAS (Delfi)</span></h2>
-        <iframe src="https://m.delfi.lv/" width="100%" height="100%" frameborder="0" style="border: 0; background-color: white;"></iframe>
+    <!-- 2. Radars -->
+    <div class="widget-box radar-panel">
+        <h2>Radars un Nokrišņi</h2>
+        <div style="flex-grow: 1; width: 100%; height: 100%;">
+            <iframe src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=7&overlay=rain&product=ecmwf&level=surface&lat=57.153&lon=24.854&marker=true" width="100%" height="100%" frameborder="0" style="border: 0;"></iframe>
+        </div>
     </div>
     
-    <!-- 3. Sky News Live (Lielbritānija) -->
-    <div class="widget-box uk-news">
-        <h2>Al Jazeera Live (EN)</h2>
-        <iframe width="100%" height="100%" src="https://www.youtube.com/embed/live_stream?channel=UCNye-wNBqNL5ZzHSJj3l8Bg&autoplay=1&mute=1&controls=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-    </div>
-    
-    <!-- 4. DW News Live (Vācija) -->
-    <div class="widget-box de-news">
-        <h2>DW News Live (DE)</h2>
-        <iframe width="100%" height="100%" src="https://www.youtube.com/embed/live_stream?channel=UCknLrEdhRCp1aegoMqRaCZg&autoplay=1&mute=1&controls=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    <!-- 3. Vējš -->
+    <div class="widget-box wind-panel">
+        <h2>Vēja Plūsmas</h2>
+        <div style="flex-grow: 1; width: 100%; height: 100%;">
+            <iframe src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=7&overlay=wind&product=ecmwf&level=surface&lat=57.153&lon=24.854" width="100%" height="100%" frameborder="0" style="border: 0;"></iframe>
+        </div>
     </div>
 
-    <!-- 5. Waze Satiksme Smiltenē -->
-    <div class="widget-box waze-smiltene">
-        <h2>Satiksme Reāllaikā (Smiltene)</h2>
-        <iframe src="https://embed.waze.com/iframe?zoom=12&lat=57.4244&lon=25.9016&ct=livemap&theme=dark" width="100%" height="100%" allowfullscreen style="border: 0;"></iframe>
+    <!-- 4. Apvienotais Prognožu Bloks (Windy + Yr.no) -->
+    <div class="widget-box combined-forecast-panel">
+        <h2>Prognoze (Sigulda) - Windy & Yr.no</h2>
+        <div style="display: flex; flex-direction: column; width: 100%; height: 100%;">
+            
+            <!-- Windy ar fiksētu augstumu (280px), lai pazustu pelēkā josla -->
+            <div style="height: 280px; width: 100%; background-color: #ffffff;">
+                <iframe width="100%" height="100%" src="https://embed.windy.com/embed.html?type=forecast&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=11&overlay=wind&product=ecmwf&level=surface&lat=57.153&lon=24.854&detailLat=57.153&detailLon=24.854&detail=true" frameborder="0" style="border:0;"></iframe>
+            </div>
+            
+            <!-- Yr.no automātiski aizpilda visu atlikušo vietu loga apakšā -->
+            <div style="flex-grow: 1; width: 100%; background-color: #161b22;">
+                <iframe src="https://www.yr.no/en/content/2-455718/table.html?mode=dark" width="100%" height="100%" frameborder="0" style="border:0;"></iframe>
+            </div>
+            
+        </div>
     </div>
+    
 </div>
 
-<!-- 6. Apakšējā Navigācijas Izvēlne -->
 <div class="bottom-nav">
     <a href="index.html">📈 Finance</a>
-    <a href="latvija.html" class="active">🇱🇻 Latvija</a>
+    <a href="latvija.html">🇱🇻 Latvija</a>
     <a href="sigulda.html">⏱️ Sigulda</a>
-    <a href="meteo.html" class="meteo-btn">🌪️ METEO!</a>
+    <a href="meteo.html" class="active meteo-btn">🌪️ METEO!</a>
 </div>
 
 <script>
-    // Pulksteņa funkcija
     function updateClock() {
         const now = new Date();
         document.getElementById('small-clock').textContent = now.toLocaleTimeString('lv-LV', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
