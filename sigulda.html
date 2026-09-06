@@ -2,159 +2,104 @@
 <html lang="lv">
 <head>
     <meta charset="UTF-8">
-    <!-- Automātiskā atmiņas tīrīšana (pārlāde) ik pēc 15 minūtēm, lai nepārpildītu televizora RAM -->
     <meta http-equiv="refresh" content="900">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FINANCE PANELIS</title>
+    <title>SIGULDAS PANELIS</title>
     <style>
-        body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%;
-            background-color: #0d1117; color: #c9d1d9;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            overflow: hidden; 
-        }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #0d1117; color: #c9d1d9; font-family: -apple-system, sans-serif; overflow: hidden; }
         
         .dashboard-container {
-            display: grid; 
-            grid-template-columns: 1fr; 
-            grid-template-rows: 1fr 1fr 1fr 1fr 1fr 70px; 
-            gap: 15px; padding: 15px; 
-            height: calc(100vh - 110px); box-sizing: border-box;
+            display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 60px 1fr; 
+            gap: 15px; padding: 15px; height: calc(100vh - 110px); box-sizing: border-box;
         }
         
-        .widget-box {
-            background-color: #161b22; border-radius: 10px; border: 1px solid #30363d;
-            overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
+        .widget-box { background-color: #161b22; border-radius: 10px; border: 1px solid #30363d; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .widget-box h2 { margin: 0; padding: 12px 15px; font-size: 1.2rem; font-weight: bold; border-bottom: 1px solid #30363d; background-color: #21262d; display: flex; justify-content: space-between; align-items: center; color: #c9d1d9; }
         
-        .widget-box h2 {
-            margin: 0; padding: 10px 15px; font-size: 1.1rem; border-bottom: 1px solid #30363d;
-            background-color: #21262d; display: flex; justify-content: space-between; align-items: center;
-        }
-        
-        .sp500-panel { grid-row: 1 / 2; }
-        .stoxx-panel { grid-row: 2 / 3; }
-        .gold-panel { grid-row: 3 / 4; }
-        .usdeur-panel { grid-row: 4 / 5; }
-        .oil-panel { grid-row: 5 / 6; }
-        .ticker-panel { grid-row: 6 / 7; }
-        
-        .tradingview-widget-container { flex-grow: 1; height: 100%; width: 100%; }
+        .clock-bar { grid-column: 1 / 3; grid-row: 1 / 2; flex-direction: row; justify-content: center; align-items: center; background-color: #21262d; }
+        .news-panel { grid-column: 1 / 2; grid-row: 2 / 3; }
+        .waze-sigulda { grid-column: 2 / 3; grid-row: 2 / 3; }
 
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            background-color: #161b22; border-top: 1px solid #30363d;
-            display: flex; justify-content: space-between; align-items: center;
-            height: 90px; padding: 0 15px; box-sizing: border-box; z-index: 9999; 
-            box-shadow: 0 -5px 15px rgba(0,0,0,0.5);
-        }
-        .bottom-nav a {
-            text-decoration: none; flex: 1; text-align: center; margin: 0 10px;
-            padding: 15px 0; background-color: #21262d;
-            color: #c9d1d9; border-radius: 12px; font-size: 1.4rem; font-weight: bold;
-            border: 2px solid #30363d; transition: all 0.2s;
-        }
+        .news-container { padding: 25px; overflow-y: auto; height: 100%; box-sizing: border-box; background-color: #0d1117; }
+        .news-item { margin-bottom: 25px; border-bottom: 1px solid #30363d; padding-bottom: 20px; }
+        .news-item:last-child { border-bottom: none; }
+        .news-date { font-size: 0.9rem; color: #58a6ff; margin-bottom: 8px; font-family: monospace; }
+        .news-title { font-size: 1.3rem; font-weight: bold; color: #c9d1d9; margin-bottom: 12px; line-height: 1.3; }
+        .news-desc { font-size: 1.05rem; color: #8b949e; line-height: 1.5; }
+        
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #161b22; }
+        ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: #58a6ff; }
+
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #161b22; border-top: 1px solid #30363d; display: flex; justify-content: space-between; align-items: center; height: 90px; padding: 0 15px; box-sizing: border-box; z-index: 9999; }
+        .bottom-nav a { text-decoration: none; flex: 1; text-align: center; margin: 0 5px; padding: 15px 0; background-color: #21262d; color: #c9d1d9; border-radius: 12px; font-size: 1.3rem; font-weight: bold; border: 2px solid #30363d; transition: all 0.2s; }
         .bottom-nav a:active { border-color: #58a6ff; background-color: #30363d; transform: scale(0.95); }
         .bottom-nav a.active { border-color: #58a6ff; color: #58a6ff; }
         .bottom-nav a.meteo-btn.active { border-color: #ff7b72; color: #ff7b72; }
     </style>
 </head>
 <body>
-
 <div class="dashboard-container">
     
-    <!-- 1. S&P 500 -->
-    <div class="widget-box sp500-panel">
-        <h2>
-            <span>S&P 500 Index</span>
-            <span style="color: #8b949e; font-size: 0.9rem;">ASV Birža atveras: <span id="market-countdown" style="color: #ff7b72; font-weight: bold; font-family: monospace; font-size: 1.1rem;">--:--:--</span></span>
-        </h2>
-        <div class="tradingview-widget-container">
-            <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px); width:100%;"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-            { "autosize": true, "symbol": "FOREXCOM:SPXUSD", "interval": "240", "range": "3M", "timezone": "Europe/Riga", "theme": "dark", "style": "1", "locale": "en", "enable_publishing": false, "backgroundColor": "#161b22", "gridColor": "#30363d", "hide_top_toolbar": false, "hide_legend": false, "save_image": false, "hide_volume": true }
-            </script>
-        </div>
-    </div>
-
-    <!-- 2. Euro Stoxx 50 -->
-    <div class="widget-box stoxx-panel">
-        <h2>Eiropas Akcijas (Euro Stoxx 50)</h2>
-        <div class="tradingview-widget-container">
-            <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px); width:100%;"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-            { "autosize": true, "symbol": "OANDA:EU50EUR", "interval": "240", "range": "3M", "timezone": "Europe/Riga", "theme": "dark", "style": "1", "locale": "en", "enable_publishing": false, "backgroundColor": "#161b22", "gridColor": "#30363d", "hide_top_toolbar": false, "hide_legend": false, "save_image": false, "hide_volume": true }
-            </script>
-        </div>
-    </div>
-
-    <!-- 3. Zelts EUR -->
-    <div class="widget-box gold-panel">
-        <h2>Zelts (XAU / EUR)</h2>
-        <div class="tradingview-widget-container">
-            <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px); width:100%;"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-            { "autosize": true, "symbol": "OANDA:XAUEUR", "interval": "240", "range": "3M", "timezone": "Europe/Riga", "theme": "dark", "style": "1", "locale": "en", "enable_publishing": false, "backgroundColor": "#161b22", "gridColor": "#30363d", "hide_top_toolbar": false, "hide_legend": false, "save_image": false, "hide_volume": true }
-            </script>
-        </div>
-    </div>
-
-    <!-- 4. Valūta USD / EUR -->
-    <div class="widget-box usdeur-panel">
-        <h2>Valūta (USD / EUR)</h2>
-        <div class="tradingview-widget-container">
-            <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px); width:100%;"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-            { "autosize": true, "symbol": "FX_IDC:USDEUR", "interval": "240", "range": "3M", "timezone": "Europe/Riga", "theme": "dark", "style": "1", "locale": "en", "enable_publishing": false, "backgroundColor": "#161b22", "gridColor": "#30363d", "hide_top_toolbar": false, "hide_legend": false, "save_image": false, "hide_volume": true }
-            </script>
-        </div>
+    <div class="widget-box clock-bar">
+        <span id="small-clock" style="font-size: 2.2rem; color: #58a6ff; font-weight: bold; font-family: monospace;">--:--:--</span>
+        <span id="small-date" style="font-size: 1.2rem; color: #8b949e; margin-left: 20px;">...</span>
     </div>
     
-    <!-- 5. Brent Nafta -->
-    <div class="widget-box oil-panel">
-        <h2>Brent Nafta (USD)</h2>
-        <div class="tradingview-widget-container">
-            <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px); width:100%;"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-            { "autosize": true, "symbol": "TVC:UKOIL", "interval": "240", "range": "3M", "timezone": "Europe/Riga", "theme": "dark", "style": "1", "locale": "en", "enable_publishing": false, "backgroundColor": "#161b22", "gridColor": "#30363d", "hide_top_toolbar": false, "hide_legend": false, "save_image": false, "hide_volume": true }
-            </script>
-        </div>
+    <div class="widget-box news-panel">
+        <h2><span>Siguldas Novada Ziņas</span></h2>
+        <div id="sigulda-news" class="news-container">Ielādē ziņas...</div>
     </div>
-
-    <!-- 6. Skrejošā rinda -->
-    <div class="widget-box ticker-panel">
-        <div class="tradingview-widget-container" style="display:flex; align-items:center; height:100%;">
-            <div class="tradingview-widget-container__widget" style="width: 100%;"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
-            { "symbols": [ { "proName": "FOREXCOM:SPXUSD", "title": "S&P 500" }, { "proName": "OANDA:EU50EUR", "title": "Euro Stoxx 50" }, { "proName": "OANDA:XAUEUR", "title": "Zelts (EUR)" }, { "proName": "TVC:UKOIL", "title": "Brent Nafta" }, { "proName": "FX_IDC:USDEUR", "title": "USD/EUR" }, { "description": "Apple", "proName": "NASDAQ:AAPL" }, { "description": "Nvidia", "proName": "NASDAQ:NVDA" }, { "description": "Tesla", "proName": "NASDAQ:TSLA" } ], "showSymbolLogo": true, "isTransparent": true, "displayMode": "adaptive", "colorTheme": "dark", "locale": "en" }
-            </script>
-        </div>
+    
+    <div class="widget-box waze-sigulda">
+        <h2>Satiksme Reāllaikā (Sigulda)</h2>
+        <iframe src="https://embed.waze.com/iframe?zoom=12&lat=57.153&lon=24.854&ct=livemap&theme=dark" width="100%" height="100%" allowfullscreen style="border: 0;"></iframe>
     </div>
-
 </div>
 
-<!-- Apakšējā izvēlne ar 5 pogām -->
 <div class="bottom-nav">
-    <a href="index.html" class="active">📈 Finance</a>
+    <a href="index.html">📈 Finance</a>
     <a href="news.html">📰 News</a>
     <a href="cams.html">📷 Kameras</a>
-    <a href="sigulda.html">⏱️ Sigulda</a>
+    <a href="sigulda.html" class="active">⏱️ Sigulda</a>
     <a href="meteo.html" class="meteo-btn">🌪️ METEO!</a>
 </div>
 
 <script>
-    function updateCountdown() {
-        const now = new Date(); let target = new Date(); target.setHours(16, 30, 0, 0);
-        if (now > target) { target.setDate(target.getDate() + 1); }
-        if (target.getDay() === 6) target.setDate(target.getDate() + 2);
-        if (target.getDay() === 0) target.setDate(target.getDate() + 1);
-        const diff = target - now;
-        const h = Math.floor((diff / (1000 * 60 * 60)) % 24).toString().padStart(2, '0');
-        const m = Math.floor((diff / 1000 / 60) % 60).toString().padStart(2, '0');
-        const s = Math.floor((diff / 1000) % 60).toString().padStart(2, '0');
-        document.getElementById('market-countdown').textContent = `${h}:${m}:${s}`;
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('small-clock').textContent = now.toLocaleTimeString('lv-LV', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        let dateString = now.toLocaleDateString('lv-LV', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        document.getElementById('small-date').textContent = dateString.charAt(0).toUpperCase() + dateString.slice(1);
     }
-    setInterval(updateCountdown, 1000); updateCountdown();
+    setInterval(updateClock, 1000); updateClock();
+
+    async function fetchSiguldaNews() {
+        const rssUrl = 'https://sigulda.lv/feed/';
+        const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+        try {
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+            const container = document.getElementById('sigulda-news');
+            container.innerHTML = '';
+            data.items.slice(0, 15).forEach(item => {
+                let cleanDesc = item.description.replace(/<[^>]*>?/gm, '');
+                if (cleanDesc.length > 200) cleanDesc = cleanDesc.substring(0, 200) + '...';
+                let dateStr = item.pubDate.substring(0, 16);
+                container.innerHTML += `
+                    <div class="news-item">
+                        <div class="news-date">${dateStr}</div>
+                        <div class="news-title">${item.title}</div>
+                        <div class="news-desc">${cleanDesc}</div>
+                    </div>
+                `;
+            });
+        } catch (error) {
+            document.getElementById('sigulda-news').innerHTML = '<div style="color: #ff7b72;">Neizdevās ielādēt Siguldas ziņas.</div>';
+        }
+    }
+    fetchSiguldaNews();
 </script>
 </body>
 </html>
