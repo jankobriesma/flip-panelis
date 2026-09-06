@@ -2,6 +2,7 @@
 <html lang="lv">
 <head>
     <meta charset="UTF-8">
+    <!-- Automātiskā pārlāde ik pēc 15 minūtēm (900 s) stabilai darbībai Flip ekrānā -->
     <meta http-equiv="refresh" content="900">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SIGULDAS PANELIS</title>
@@ -33,7 +34,9 @@
         ::-webkit-scrollbar-thumb:hover { background: #58a6ff; }
 
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #161b22; border-top: 1px solid #30363d; display: flex; justify-content: space-between; align-items: center; height: 90px; padding: 0 15px; box-sizing: border-box; z-index: 9999; }
-        .bottom-nav a { text-decoration: none; flex: 1; text-align: center; margin: 0 5px; padding: 15px 0; background-color: #21262d; color: #c9d1d9; border-radius: 12px; font-size: 1.3rem; font-weight: bold; border: 2px solid #30363d; transition: all 0.2s; }
+        
+        /* Atgriezta 4 pogu navigācija bez kamerām */
+        .bottom-nav a { text-decoration: none; flex: 1; text-align: center; margin: 0 10px; padding: 15px 0; background-color: #21262d; color: #c9d1d9; border-radius: 12px; font-size: 1.4rem; font-weight: bold; border: 2px solid #30363d; transition: all 0.2s; }
         .bottom-nav a:active { border-color: #58a6ff; background-color: #30363d; transform: scale(0.95); }
         .bottom-nav a.active { border-color: #58a6ff; color: #58a6ff; }
         .bottom-nav a.meteo-btn.active { border-color: #ff7b72; color: #ff7b72; }
@@ -54,14 +57,14 @@
     
     <div class="widget-box waze-sigulda">
         <h2>Satiksme Reāllaikā (Sigulda)</h2>
-        <iframe src="https://embed.waze.com/iframe?zoom=12&lat=57.153&lon=24.854&ct=livemap&theme=dark" width="100%" height="100%" allowfullscreen style="border: 0;"></iframe>
+        <!-- Modificēts Waze kods (Zoom 14, noņemts dark theme, lai Tizen nenobloķē sarkanās satiksmes līnijas) -->
+        <iframe src="https://embed.waze.com/iframe?zoom=14&lat=57.153&lon=24.854&ct=livemap" width="100%" height="100%" allowfullscreen style="border: 0;"></iframe>
     </div>
 </div>
 
 <div class="bottom-nav">
     <a href="index.html">📈 Finance</a>
     <a href="news.html">📰 News</a>
-    <a href="cams.html">📷 Kameras</a>
     <a href="sigulda.html" class="active">⏱️ Sigulda</a>
     <a href="meteo.html" class="meteo-btn">🌪️ METEO!</a>
 </div>
@@ -96,7 +99,7 @@
                 `;
             });
         } catch (error) {
-            document.getElementById('sigulda-news').innerHTML = '<div style="color: #ff7b72;">Neizdevās ielādēt Siguldas ziņas.</div>';
+            document.getElementById('sigulda-news').innerHTML = '<div style="color: #ff7b72;">Neizdevās ielādēt Siguldas ziņas. Pārbaudiet internetu.</div>';
         }
     }
     fetchSiguldaNews();
