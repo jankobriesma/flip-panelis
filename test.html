@@ -1,110 +1,956 @@
 <!DOCTYPE html>
 <html lang="lv">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="3600">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>METEO!</title>
-    <style>
-        body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%;
-            background-color: #0d1117; color: #c9d1d9; font-family: -apple-system, sans-serif; overflow: hidden; 
-        }
-        
-        /* Pārkārtots Grid: tagad ir tikai 3 rindas (Pulkstenis, Kartes, Kombinētā Prognoze apakšā) */
-        .dashboard-container {
-            display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 60px 1.5fr 1fr; 
-            gap: 15px; padding: 15px; height: calc(100vh - 110px); box-sizing: border-box;
-        }
-        
-        .widget-box {
-            background-color: #161b22; border-radius: 10px; border: 1px solid #30363d;
-            overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
-        .widget-box h2 {
-            margin: 0; padding: 12px 15px; font-size: 1.2rem; font-weight: bold; border-bottom: 1px solid #30363d;
-            background-color: #21262d; display: flex; justify-content: space-between; align-items: center; color: #58a6ff;
-        }
-        
-        /* Pozīcijas */
-        .clock-bar { grid-column: 1 / 3; grid-row: 1 / 2; flex-direction: row; justify-content: center; align-items: center; background-color: #21262d; }
-        .radar-panel { grid-column: 1 / 2; grid-row: 2 / 3; }
-        .wind-panel { grid-column: 2 / 3; grid-row: 2 / 3; }
-        .combined-forecast-panel { grid-column: 1 / 3; grid-row: 3 / 4; } /* Apvienotais bloks pašā apakšā */
-        
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; width: 100%; background-color: #161b22; border-top: 1px solid #30363d;
-            display: flex; justify-content: space-between; align-items: center; height: 90px; padding: 0 15px; box-sizing: border-box; z-index: 9999; 
-        }
-        .bottom-nav a {
-            text-decoration: none; flex: 1; text-align: center; margin: 0 10px; padding: 15px 0; background-color: #21262d;
-            color: #c9d1d9; border-radius: 12px; font-size: 1.4rem; font-weight: bold; border: 2px solid #30363d; transition: all 0.2s;
-        }
-        .bottom-nav a:active { border-color: #58a6ff; background-color: #30363d; transform: scale(0.95); }
-        .bottom-nav a.active { border-color: #58a6ff; color: #58a6ff; }
-        .bottom-nav a.meteo-btn.active { border-color: #ff7b72; color: #ff7b72; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ENERĢIJAS PANELIS</title>
+
+<style>
+:root{
+  --bg:#0d1117;
+  --panel:#161b22;
+  --panel2:#21262d;
+  --border:#30363d;
+  --text:#c9d1d9;
+  --muted:#8b949e;
+  --blue:#58a6ff;
+  --green:#3fb950;
+  --yellow:#d29922;
+  --orange:#f0883e;
+  --red:#ff7b72;
+  --purple:#bc8cff;
+  --cyan:#39c5cf;
+}
+
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  overflow:hidden;
+}
+
+body{
+  padding-bottom:90px;
+}
+
+.dashboard{
+  height:calc(100vh - 90px);
+  display:grid;
+  grid-template-rows:auto 1.15fr 0.8fr 0.92fr;
+  gap:14px;
+  padding:14px;
+}
+
+.card{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:14px;
+  box-shadow:0 4px 14px rgba(0,0,0,.45);
+  overflow:hidden;
+}
+
+.topbar{
+  min-height:68px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:10px 16px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:14px;
+  box-shadow:0 4px 14px rgba(0,0,0,.45);
+}
+
+.title-wrap{
+  display:flex;
+  align-items:center;
+  gap:13px;
+}
+
+.logo{
+  width:48px;height:48px;
+  border-radius:12px;
+  display:grid;place-items:center;
+  background:rgba(88,166,255,.12);
+  border:1px solid rgba(88,166,255,.35);
+  font-size:28px;
+}
+
+.title{
+  font-size:1.55rem;
+  font-weight:800;
+  letter-spacing:.02em;
+}
+
+.subtitle{
+  color:var(--muted);
+  font-size:.92rem;
+  margin-top:2px;
+}
+
+.top-status{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:18px;
+  flex-wrap:wrap;
+}
+
+.status-pill{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:var(--panel2);
+  border:1px solid var(--border);
+  border-radius:999px;
+  padding:8px 13px;
+  font-weight:700;
+}
+
+.dot{
+  width:10px;height:10px;border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 10px rgba(63,185,80,.8);
+}
+
+.clock{
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:1.15rem;
+  color:var(--blue);
+  font-weight:800;
+}
+
+.flow-card{
+  position:relative;
+  padding:16px;
+}
+
+.flow-title,
+.section-title{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:12px;
+}
+
+.flow-title h2,
+.section-title h2{
+  margin:0;
+  font-size:1.08rem;
+}
+
+.small{
+  color:var(--muted);
+  font-size:.85rem;
+}
+
+.flow-grid{
+  height:calc(100% - 36px);
+  display:grid;
+  grid-template-columns:1fr 1.15fr 1fr;
+  grid-template-rows:1fr 1fr;
+  grid-template-areas:
+    "solar home grid"
+    "solar battery grid";
+  gap:13px;
+}
+
+.energy-node{
+  background:var(--panel2);
+  border:1px solid var(--border);
+  border-radius:14px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+
+.energy-node::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle at 50% 0%, rgba(88,166,255,.07), transparent 55%);
+  pointer-events:none;
+}
+
+.solar{grid-area:solar}
+.home{grid-area:home}
+.grid{grid-area:grid}
+.battery{grid-area:battery}
+
+.icon{
+  font-size:2.2rem;
+  margin-bottom:2px;
+}
+
+.label{
+  color:var(--muted);
+  font-size:.84rem;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  font-weight:700;
+}
+
+.value{
+  margin-top:5px;
+  font-size:2rem;
+  font-weight:900;
+  line-height:1;
+}
+
+.unit{
+  font-size:1rem;
+  color:var(--muted);
+  font-weight:700;
+}
+
+.subvalue{
+  margin-top:7px;
+  font-size:.85rem;
+  color:var(--muted);
+}
+
+.solar .value{color:var(--yellow)}
+.home .value{color:var(--blue)}
+.grid .value{color:var(--cyan)}
+.battery .value{color:var(--green)}
+
+.arrow{
+  display:inline-block;
+  margin-right:5px;
+  font-weight:900;
+}
+
+.battery-bar{
+  width:74%;
+  height:12px;
+  margin-top:10px;
+  background:#0d1117;
+  border:1px solid var(--border);
+  border-radius:999px;
+  overflow:hidden;
+}
+
+.battery-fill{
+  height:100%;
+  width:78%;
+  background:linear-gradient(90deg,var(--green),#56d364);
+  transition:width .6s ease;
+}
+
+.mid-grid{
+  display:grid;
+  grid-template-columns:1.25fr .95fr;
+  gap:14px;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  padding:0 14px 14px;
+}
+
+.stat{
+  background:var(--panel2);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:12px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  min-width:0;
+}
+
+.stat-label{
+  color:var(--muted);
+  font-size:.78rem;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+}
+
+.stat-value{
+  margin-top:5px;
+  font-size:1.55rem;
+  font-weight:900;
+  white-space:nowrap;
+}
+
+.green{color:var(--green)}
+.blue{color:var(--blue)}
+.yellow{color:var(--yellow)}
+.red{color:var(--red)}
+.purple{color:var(--purple)}
+.cyan{color:var(--cyan)}
+
+.card-header{
+  padding:12px 14px 10px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.price-card{
+  padding:0 14px 14px;
+}
+
+.price-now{
+  display:flex;
+  align-items:end;
+  gap:10px;
+  margin-bottom:10px;
+}
+
+.price-big{
+  font-size:2.1rem;
+  font-weight:900;
+}
+
+.price-note{
+  font-size:.86rem;
+  color:var(--muted);
+  padding-bottom:4px;
+}
+
+.price-bars{
+  height:82px;
+  display:flex;
+  align-items:end;
+  gap:4px;
+  padding-top:8px;
+}
+
+.price-bar-wrap{
+  flex:1;
+  height:100%;
+  display:flex;
+  align-items:end;
+  justify-content:center;
+  position:relative;
+}
+
+.price-bar{
+  width:100%;
+  min-height:8px;
+  border-radius:5px 5px 2px 2px;
+  background:var(--blue);
+  opacity:.85;
+}
+
+.price-bar.cheap{background:var(--green)}
+.price-bar.expensive{background:var(--red)}
+.price-bar.current{
+  outline:2px solid #fff;
+  outline-offset:2px;
+}
+
+.price-hours{
+  display:flex;
+  justify-content:space-between;
+  margin-top:5px;
+  color:var(--muted);
+  font-size:.7rem;
+}
+
+.bottom-grid{
+  display:grid;
+  grid-template-columns:1.15fr .9fr 1fr;
+  gap:14px;
+}
+
+.ai-card,
+.forecast-card,
+.system-card{
+  padding:14px;
+}
+
+.plan{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  column-gap:12px;
+  row-gap:8px;
+  align-items:center;
+}
+
+.plan-icon{
+  width:42px;height:42px;
+  border-radius:12px;
+  display:grid;place-items:center;
+  background:rgba(188,140,255,.12);
+  border:1px solid rgba(188,140,255,.35);
+  font-size:22px;
+}
+
+.plan-main{
+  font-size:1rem;
+  font-weight:800;
+}
+
+.plan-details{
+  grid-column:2;
+  color:var(--muted);
+  font-size:.86rem;
+  line-height:1.35;
+}
+
+.badge{
+  display:inline-block;
+  margin-top:8px;
+  padding:5px 9px;
+  border-radius:999px;
+  font-size:.76rem;
+  font-weight:800;
+  background:rgba(63,185,80,.12);
+  color:var(--green);
+  border:1px solid rgba(63,185,80,.35);
+}
+
+.forecast-list{
+  display:grid;
+  gap:8px;
+}
+
+.forecast-row{
+  display:grid;
+  grid-template-columns:90px 1fr auto;
+  gap:9px;
+  align-items:center;
+}
+
+.forecast-name{
+  color:var(--muted);
+  font-size:.8rem;
+  font-weight:700;
+}
+
+.mini-track{
+  height:9px;
+  background:#0d1117;
+  border:1px solid var(--border);
+  border-radius:999px;
+  overflow:hidden;
+}
+
+.mini-fill{
+  height:100%;
+  border-radius:999px;
+}
+
+.system-list{
+  display:grid;
+  gap:7px;
+}
+
+.system-row{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  padding-bottom:6px;
+  border-bottom:1px solid rgba(48,54,61,.7);
+  font-size:.85rem;
+}
+
+.system-row:last-child{border-bottom:0}
+.system-row span:first-child{color:var(--muted)}
+.system-row strong{text-align:right}
+
+.bottom-nav{
+  position:fixed;
+  bottom:0;left:0;
+  width:100%;
+  height:90px;
+  padding:0 15px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  background:var(--panel);
+  border-top:1px solid var(--border);
+  box-shadow:0 -5px 15px rgba(0,0,0,.5);
+  z-index:9999;
+}
+
+.bottom-nav a{
+  text-decoration:none;
+  flex:1;
+  text-align:center;
+  padding:15px 5px;
+  margin:0;
+  background:var(--panel2);
+  color:var(--text);
+  border-radius:12px;
+  font-size:1.15rem;
+  font-weight:800;
+  border:2px solid var(--border);
+  transition:.2s;
+  white-space:nowrap;
+}
+
+.bottom-nav a:active{
+  transform:scale(.96);
+  border-color:var(--blue);
+}
+
+.bottom-nav a.active{
+  border-color:var(--green);
+  color:var(--green);
+}
+
+.demo{
+  position:absolute;
+  top:10px;
+  right:10px;
+  font-size:.68rem;
+  color:var(--yellow);
+  border:1px solid rgba(210,153,34,.45);
+  background:rgba(210,153,34,.10);
+  border-radius:999px;
+  padding:4px 8px;
+  font-weight:800;
+  z-index:2;
+}
+
+@media(max-width:950px){
+  html,body{overflow:auto}
+  body{padding-bottom:92px}
+  .dashboard{
+    height:auto;
+    min-height:calc(100vh - 90px);
+    grid-template-rows:auto auto auto auto;
+  }
+  .flow-grid{
+    min-height:440px;
+  }
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .mid-grid,.bottom-grid{grid-template-columns:1fr}
+  .bottom-nav a{font-size:.88rem}
+}
+
+@media(min-width:1800px){
+  .dashboard{gap:20px;padding:20px}
+  .topbar{min-height:82px}
+  .title{font-size:2rem}
+  .flow-title h2,.section-title h2{font-size:1.35rem}
+  .value{font-size:2.7rem}
+  .stat-value{font-size:2rem}
+  .bottom-nav a{font-size:1.35rem}
+}
+</style>
 </head>
+
 <body>
-<div class="dashboard-container">
-    
-    <!-- 1. Pulksteņa rinda (Augšā) -->
-    <div class="widget-box clock-bar">
-        <span id="small-clock" style="font-size: 2.2rem; color: #58a6ff; font-weight: bold; font-family: monospace;">--:--:--</span>
-        <span id="small-date" style="font-size: 1.2rem; color: #8b949e; margin-left: 20px;">...</span>
-    </div>
-    
-    <!-- 2. Radars -->
-    <div class="widget-box radar-panel">
-        <h2>Radars un Nokrišņi</h2>
-        <div style="flex-grow: 1; width: 100%; height: 100%;">
-            <iframe src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=7&overlay=rain&product=ecmwf&level=surface&lat=57.153&lon=24.854&marker=true" width="100%" height="100%" frameborder="0" style="border: 0;"></iframe>
-        </div>
-    </div>
-    
-    <!-- 3. Vējš -->
-    <div class="widget-box wind-panel">
-        <h2>Vēja Plūsmas</h2>
-        <div style="flex-grow: 1; width: 100%; height: 100%;">
-            <iframe src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=7&overlay=wind&product=ecmwf&level=surface&lat=57.153&lon=24.854" width="100%" height="100%" frameborder="0" style="border: 0;"></iframe>
-        </div>
+
+<div class="dashboard">
+
+  <div class="topbar">
+    <div class="title-wrap">
+      <div class="logo">⚡</div>
+      <div>
+        <div class="title">MĀJAS ENERĢIJA</div>
+        <div class="subtitle">Solis • Dyness • Home Assistant • Nord Pool</div>
+      </div>
     </div>
 
-    <!-- 4. Apvienotais Prognožu Bloks (Windy + Yr.no) -->
-    <div class="widget-box combined-forecast-panel">
-        <h2>Prognoze (Sigulda) - Windy & Yr.no</h2>
-        <div style="display: flex; flex-direction: column; width: 100%; height: 100%;">
-            
-            <!-- Windy ar fiksētu augstumu (280px), lai pazustu pelēkā josla -->
-            <div style="height: 280px; width: 100%; background-color: #ffffff;">
-                <iframe width="100%" height="100%" src="https://embed.windy.com/embed.html?type=forecast&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=11&overlay=wind&product=ecmwf&level=surface&lat=57.153&lon=24.854&detailLat=57.153&detailLon=24.854&detail=true" frameborder="0" style="border:0;"></iframe>
-            </div>
-            
-            <!-- Yr.no automātiski aizpilda visu atlikušo vietu loga apakšā -->
-            <div style="flex-grow: 1; width: 100%; background-color: #161b22;">
-                <iframe src="https://www.yr.no/en/content/2-455718/table.html?mode=dark" width="100%" height="100%" frameborder="0" style="border:0;"></iframe>
-            </div>
-            
-        </div>
+    <div class="top-status">
+      <div class="status-pill"><span class="dot"></span><span>Sistēma tiešsaistē</span></div>
+      <div class="status-pill">🤖 AUTO</div>
+      <div class="clock" id="clock">--:--:--</div>
     </div>
-    
+  </div>
+
+  <div class="card flow-card">
+    <div class="demo">DEMO DATI</div>
+
+    <div class="flow-title">
+      <h2>⚡ Enerģijas plūsma reāllaikā</h2>
+      <span class="small">Atjaunots: <span id="updated">--:--:--</span></span>
+    </div>
+
+    <div class="flow-grid">
+      <div class="energy-node solar">
+        <div class="icon">☀️</div>
+        <div class="label">Saules paneļi</div>
+        <div class="value"><span id="pvPower">7.82</span> <span class="unit">kW</span></div>
+        <div class="subvalue">Šodien <strong id="pvToday">34.7 kWh</strong></div>
+      </div>
+
+      <div class="energy-node home">
+        <div class="icon">🏠</div>
+        <div class="label">Mājas patēriņš</div>
+        <div class="value"><span id="loadPower">2.41</span> <span class="unit">kW</span></div>
+        <div class="subvalue">Šodien <strong id="loadToday">21.4 kWh</strong></div>
+      </div>
+
+      <div class="energy-node grid">
+        <div class="icon">🌐</div>
+        <div class="label">Elektrotīkls</div>
+        <div class="value"><span id="gridPower">0.00</span> <span class="unit">kW</span></div>
+        <div class="subvalue" id="gridDirection"><span class="arrow">↑</span> Nodod tīklā</div>
+      </div>
+
+      <div class="energy-node battery">
+        <div class="icon">🔋</div>
+        <div class="label">Dyness 2 × PowerBrick Plus</div>
+        <div class="value"><span id="soc">78</span><span class="unit">%</span></div>
+        <div class="battery-bar"><div class="battery-fill" id="batteryFill"></div></div>
+        <div class="subvalue"><span id="batteryPower">+5.41 kW</span> • <span id="batteryKwh">25.1 / 32.1 kWh</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mid-grid">
+
+    <div class="card">
+      <div class="card-header">
+        <div class="section-title" style="margin:0;width:100%">
+          <h2>📊 Šodienas bilance</h2>
+          <span class="small">00:00 → tagad</span>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-label">PV ražošana</div>
+          <div class="stat-value yellow" id="sPv">34.7 kWh</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Patēriņš</div>
+          <div class="stat-value blue" id="sLoad">21.4 kWh</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">No tīkla</div>
+          <div class="stat-value red" id="sImport">3.2 kWh</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Tīklā</div>
+          <div class="stat-value cyan" id="sExport">14.2 kWh</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Pašpatēriņš</div>
+          <div class="stat-value green" id="selfUse">59%</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Autonomija</div>
+          <div class="stat-value green" id="autarky">85%</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Ietaupīts</div>
+          <div class="stat-value purple" id="saved">€6.84</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">CO₂ ekvivalents</div>
+          <div class="stat-value" id="co2">8.7 kg</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="section-title" style="margin:0;width:100%">
+          <h2>💶 Nord Pool</h2>
+          <span class="small">Latvija • demo</span>
+        </div>
+      </div>
+
+      <div class="price-card">
+        <div class="price-now">
+          <div class="price-big green" id="priceNow">4.7 c/kWh</div>
+          <div class="price-note" id="priceLabel">LĒTA ELEKTRĪBA</div>
+        </div>
+
+        <div class="price-bars" id="priceBars"></div>
+        <div class="price-hours"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="bottom-grid">
+
+    <div class="card ai-card">
+      <div class="section-title">
+        <h2>🤖 HA enerģijas plāns</h2>
+        <span class="small">nākamās 24 h</span>
+      </div>
+
+      <div class="plan">
+        <div class="plan-icon">🧠</div>
+        <div class="plan-main">Šonakt uzlādēt bateriju līdz 72%</div>
+        <div class="plan-details">
+          Lētākais logs: <strong class="green">02:00–04:00</strong><br>
+          Plānotā uzlāde: <strong>8.5 kWh</strong> ar ~4.5 kW<br>
+          Rītdienas PV prognoze laba — 100% uzlāde no tīkla nav vajadzīga.
+          <div class="badge">AUTO OPTIMIZĀCIJA AKTĪVA</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card forecast-card">
+      <div class="section-title">
+        <h2>🌤️ Rītdienas prognoze</h2>
+        <span class="small">PV / slodze</span>
+      </div>
+
+      <div class="forecast-list">
+        <div class="forecast-row">
+          <div class="forecast-name">PV prognoze</div>
+          <div class="mini-track"><div class="mini-fill" style="width:78%;background:var(--yellow)"></div></div>
+          <strong class="yellow">28.4 kWh</strong>
+        </div>
+        <div class="forecast-row">
+          <div class="forecast-name">Patēriņš</div>
+          <div class="mini-track"><div class="mini-fill" style="width:57%;background:var(--blue)"></div></div>
+          <strong class="blue">20.7 kWh</strong>
+        </div>
+        <div class="forecast-row">
+          <div class="forecast-name">Baterija 07:00</div>
+          <div class="mini-track"><div class="mini-fill" style="width:68%;background:var(--green)"></div></div>
+          <strong class="green">68%</strong>
+        </div>
+        <div class="forecast-row">
+          <div class="forecast-name">Rezerves SOC</div>
+          <div class="mini-track"><div class="mini-fill" style="width:20%;background:var(--purple)"></div></div>
+          <strong class="purple">20%</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="card system-card">
+      <div class="section-title">
+        <h2>🔧 Sistēma</h2>
+        <span class="small">statuss</span>
+      </div>
+
+      <div class="system-list">
+        <div class="system-row"><span>Invertors</span><strong>Solis S6 12 kW</strong></div>
+        <div class="system-row"><span>Baterija</span><strong>Dyness 32.1 kWh</strong></div>
+        <div class="system-row"><span>BMS</span><strong class="green">● Online</strong></div>
+        <div class="system-row"><span>Backup</span><strong class="green">Gatavs</strong></div>
+        <div class="system-row"><span>SG-Ready</span><strong id="sgReady">NORMAL</strong></div>
+        <div class="system-row"><span>Home Assistant</span><strong class="green">● Online</strong></div>
+      </div>
+    </div>
+
+  </div>
+
 </div>
 
 <div class="bottom-nav">
-    <a href="index.html">📈 Finance</a>
-    <a href="latvija.html">🇱🇻 Latvija</a>
-    <a href="sigulda.html">⏱️ Sigulda</a>
-    <a href="meteo.html" class="active meteo-btn">🌪️ METEO!</a>
+  <a href="finance.html">📈 Finance</a>
+  <a href="news.html">📰 News</a>
+  <a href="sigulda.html">⏱️ Sigulda</a>
+  <a href="meteo.html">🌪️ METEO!</a>
+  <a href="energy.html" class="active">⚡ Enerģija</a>
 </div>
 
 <script>
-    function updateClock() {
-        const now = new Date();
-        document.getElementById('small-clock').textContent = now.toLocaleTimeString('lv-LV', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        let dateString = now.toLocaleDateString('lv-LV', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-        document.getElementById('small-date').textContent = dateString.charAt(0).toUpperCase() + dateString.slice(1);
-    }
-    setInterval(updateClock, 1000); updateClock();
+/*
+========================================================
+ENERGY.HTML — DEMO VERSIJA
+========================================================
+Kad būs Home Assistant, DEMO_MODE varēs nomainīt uz false
+un fetchEnergyData() funkcijā ielikt HA/WebSocket/API datu saņemšanu.
+
+Svarīgi:
+- GitHub Pages ir HTTPS.
+- Lokālu HA http://192.168.x.x no HTTPS lapas pārlūks var bloķēt
+  Mixed Content / CORS dēļ.
+- Gala variantam labāk paneli servēt lokāli no M73 vai izmantot
+  drošu HTTPS starpnieku / HA proxy.
+========================================================
+*/
+
+const DEMO_MODE = true;
+
+const demo = {
+  pvPower: 7.82,
+  loadPower: 2.41,
+  batteryPower: 5.41,      // + = uzlāde, - = izlāde
+  soc: 78,
+  batteryNominal: 32.14,
+  pvToday: 34.7,
+  loadToday: 21.4,
+  importToday: 3.2,
+  exportToday: 14.2,
+  saved: 6.84,
+  co2: 8.7
+};
+
+const prices = [
+  7.2, 5.8, 3.9, 2.7, 3.1, 4.2,
+  6.5, 8.4, 10.1, 12.8, 14.2, 11.7,
+  8.9, 6.4, 5.1, 4.7, 6.0, 9.5,
+  13.8, 16.4, 14.9, 11.2, 8.4, 6.9
+];
+
+function fmt(n, digits=1){
+  return Number(n).toFixed(digits);
+}
+
+function updateClock(){
+  const now = new Date();
+  const t = now.toLocaleTimeString('lv-LV', {
+    timeZone:'Europe/Riga',
+    hour12:false
+  });
+
+  document.getElementById('clock').textContent = t;
+  document.getElementById('updated').textContent = t;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+function calculateGrid(d){
+  // pozitīvs = eksports uz tīklu; negatīvs = imports no tīkla
+  return d.pvPower - d.loadPower - d.batteryPower;
+}
+
+function renderEnergy(d){
+  const grid = calculateGrid(d);
+  const battKwh = d.batteryNominal * d.soc / 100;
+  const selfUse = Math.max(0, Math.min(100, ((d.pvToday - d.exportToday) / d.pvToday) * 100));
+  const autarky = Math.max(0, Math.min(100, (1 - d.importToday / d.loadToday) * 100));
+
+  document.getElementById('pvPower').textContent = fmt(d.pvPower,2);
+  document.getElementById('loadPower').textContent = fmt(d.loadPower,2);
+  document.getElementById('gridPower').textContent = fmt(Math.abs(grid),2);
+
+  document.getElementById('soc').textContent = Math.round(d.soc);
+  document.getElementById('batteryFill').style.width = `${d.soc}%`;
+  document.getElementById('batteryKwh').textContent =
+    `${fmt(battKwh,1)} / ${fmt(d.batteryNominal,1)} kWh`;
+
+  document.getElementById('batteryPower').textContent =
+    `${d.batteryPower >= 0 ? '+' : ''}${fmt(d.batteryPower,2)} kW`;
+
+  document.getElementById('gridDirection').innerHTML =
+    grid >= 0
+      ? `<span class="arrow">↑</span> Nodod tīklā`
+      : `<span class="arrow">↓</span> Ņem no tīkla`;
+
+  document.getElementById('pvToday').textContent = `${fmt(d.pvToday,1)} kWh`;
+  document.getElementById('loadToday').textContent = `${fmt(d.loadToday,1)} kWh`;
+
+  document.getElementById('sPv').textContent = `${fmt(d.pvToday,1)} kWh`;
+  document.getElementById('sLoad').textContent = `${fmt(d.loadToday,1)} kWh`;
+  document.getElementById('sImport').textContent = `${fmt(d.importToday,1)} kWh`;
+  document.getElementById('sExport').textContent = `${fmt(d.exportToday,1)} kWh`;
+  document.getElementById('selfUse').textContent = `${Math.round(selfUse)}%`;
+  document.getElementById('autarky').textContent = `${Math.round(autarky)}%`;
+  document.getElementById('saved').textContent = `€${fmt(d.saved,2)}`;
+  document.getElementById('co2').textContent = `${fmt(d.co2,1)} kg`;
+}
+
+function renderPrices(){
+  const container = document.getElementById('priceBars');
+  container.innerHTML = '';
+
+  const max = Math.max(...prices);
+  const currentHour = new Date().getHours();
+
+  prices.forEach((p,i)=>{
+    const wrap = document.createElement('div');
+    wrap.className = 'price-bar-wrap';
+
+    const bar = document.createElement('div');
+    bar.className = 'price-bar';
+    if(p <= 5) bar.classList.add('cheap');
+    if(p >= 13) bar.classList.add('expensive');
+    if(i === currentHour) bar.classList.add('current');
+
+    bar.style.height = `${Math.max(12,(p/max)*100)}%`;
+    bar.title = `${String(i).padStart(2,'0')}:00 — ${p.toFixed(1)} c/kWh`;
+
+    wrap.appendChild(bar);
+    container.appendChild(wrap);
+  });
+
+  const p = prices[currentHour] ?? prices[0];
+  document.getElementById('priceNow').textContent = `${p.toFixed(1)} c/kWh`;
+
+  const priceLabel = document.getElementById('priceLabel');
+  const priceNow = document.getElementById('priceNow');
+
+  priceNow.classList.remove('green','yellow','red');
+
+  if(p <= 5){
+    priceLabel.textContent = 'LĒTA ELEKTRĪBA';
+    priceNow.classList.add('green');
+  }else if(p >= 13){
+    priceLabel.textContent = 'DĀRGA ELEKTRĪBA';
+    priceNow.classList.add('red');
+  }else{
+    priceLabel.textContent = 'VIDĒJA CENA';
+    priceNow.classList.add('yellow');
+  }
+}
+
+function demoTick(){
+  if(!DEMO_MODE) return;
+
+  // Neliela kustība, lai uz FLIP paneļa redzams, ka dati ir "dzīvi".
+  demo.pvPower = Math.max(0, demo.pvPower + (Math.random()-.5)*0.08);
+  demo.loadPower = Math.max(.4, demo.loadPower + (Math.random()-.5)*0.06);
+
+  // Ja ir PV pārpalikums, demo režīmā baterija lādējas.
+  demo.batteryPower = Math.min(5.8, Math.max(0, demo.pvPower - demo.loadPower - 0.2));
+
+  renderEnergy(demo);
+}
+
+async function fetchEnergyData(){
+  if(DEMO_MODE){
+    renderEnergy(demo);
+    return;
+  }
+
+  /*
+  ========================================================
+  NĀKOTNES HOME ASSISTANT PIEMĒRS
+  ========================================================
+
+  Šeit var ielikt, piemēram:
+  const response = await fetch('/api/energy');
+  const data = await response.json();
+  renderEnergy(data);
+
+  Vēl labāk: M73 lokāls mazs API, kas no HA nolasa sensorus
+  un energy.html atdod tikai nepieciešamos datus.
+  ========================================================
+  */
+}
+
+renderPrices();
+fetchEnergyData();
+setInterval(demoTick, 3000);
+setInterval(renderPrices, 60000);
+
+// Demo SG-Ready stāvokļa piemērs
+function updateSgReady(){
+  const hour = new Date().getHours();
+  const el = document.getElementById('sgReady');
+
+  if(hour >= 11 && hour <= 16){
+    el.textContent = 'BOOST';
+    el.className = 'green';
+  }else{
+    el.textContent = 'NORMAL';
+    el.className = '';
+  }
+}
+updateSgReady();
+setInterval(updateSgReady,60000);
 </script>
+
 </body>
 </html>
